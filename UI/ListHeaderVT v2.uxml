@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Assets/UI%20Toolkit/UIBuilder/ListHeaderStyle.uss?fileID=7433441132597879392&amp;guid=06d2b6a4e0e0db94c966a720694a0d54&amp;type=3#ListHeaderStyle" />
+    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; min-height: 30px; min-width: 100%; justify-content: space-between; align-items: flex-start; align-self: stretch;">
+        <ui:Foldout style="position: absolute; left: 0; top: 0; right: 0; bottom: 0;">
+            <ui:ListView focusable="true" show-add-remove-footer="false" show-foldout-header="false" horizontal-scrolling="false" show-border="true" style="margin-left: -15px;" />
+        </ui:Foldout>
+        <ui:Label tabindex="-1" text="Variable NameVariable NameVariable NameVariable NameVariable Name" display-tooltip-when-elided="true" name="variable-name" style="-unity-text-align: upper-left; left: 15px; right: 80px;" />
+        <ui:VisualElement name="list-header-container" focusable="true" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; align-items: flex-start;">
+            <ui:VisualElement name="right-side" focusable="true">
+                <ui:IntegerField value="42" name="bound-collection-size" />
+                <ui:Button text="+" display-tooltip-when-elided="true" name="add-button" />
+            </ui:VisualElement>
+            <ui:ListView focusable="true" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

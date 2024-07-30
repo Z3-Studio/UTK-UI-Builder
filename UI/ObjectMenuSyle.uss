@@ -1,0 +1,40 @@
+#ping-object {
+    min-width: 30px;
+    -unity-background-scale-mode: scale-to-fit;
+    background-image: url("project://database/Packages/com.z3.ui-builder/Art/Eye.png?fileID=2800000&guid=dc6a23adb0fa15347b725ced4160a967&type=3#Eye");
+    -unity-background-image-tint-color: rgb(154, 154, 154);
+}
+
+#tree-view {
+    min-width: 100%;
+}
+
+#inspector-container {
+}
+
+#search-field {
+    width: 100%;
+}
+
+.left-panel {
+    min-width: 10%;
+    max-width: 90%;
+}
+
+.right-panel {
+    width: 100%;
+    height: 100%;
+    max-width: 90%;
+    min-width: 10%;
+    min-height: 100%;
+    max-height: 100%;
+}
+
+.scroll-view {
+    background-color: rgb(64, 64, 64);
+    min-height: 100%;
+}
+
+.left-toolbar {
+    padding-right: 8px;
+}

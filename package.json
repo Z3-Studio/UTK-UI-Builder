@@ -1,0 +1,20 @@
+{
+  "name": "com.z3.ui-builder",
+  "displayName": "Z3 UI Builder",
+  "author": {
+    "name": "Z3",
+    "url": "https://github.com/Z3-Studio"
+  },
+  "version": "0.1.0-beta",
+  "unity": "2021.3",
+  "description": "Provides solutions to Unity.",
+  "keywords": [
+    "UI Builder",
+    "UI Toolkit"
+  ],
+  "license": "Proprietary License",
+  "category": "Tool",
+  "dependencies": {
+    "com.z3.utils": "1.0.0"
+  }
+}

@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 445290d430075104faa5bfc752fcf38f, type: 3}
+  m_Name: UIBuilderResources
+  m_EditorClassIdentifier: 
+  listHeaderVT: {fileID: 9197481963319205126, guid: 50dd826cd2484b34f9a988d38eb1687a, type: 3}
+  listElementVT: {fileID: 9197481963319205126, guid: 4d4836362849b8b43b9ac47d673aec3e, type: 3}
+  objectMenuWindowVT: {fileID: 9197481963319205126, guid: 39e9b7c52d88f0e4b803b5f2272cc10c, type: 3}

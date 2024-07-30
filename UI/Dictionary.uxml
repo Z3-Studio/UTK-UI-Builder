@@ -1,0 +1,32 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); max-width: 100%; min-width: 100%;">
+        <uie:Toolbar style="flex-direction: row-reverse;">
+            <uie:ToolbarButton text="+" display-tooltip-when-elided="true" style="-unity-font-style: bold; font-size: 18px; -unity-text-align: middle-center; padding-bottom: 4px;" />
+        </uie:Toolbar>
+        <ui:VisualElement class="unity-toolbar" style="min-height: 40px; flex-direction: column; min-width: 100%;">
+            <ui:TextField picking-mode="Ignore" label="Text Field" value="filler text" />
+            <ui:IntegerField label="Int Field" value="42" class="unity-property-field__input" style="min-width: 50%;" />
+        </ui:VisualElement>
+        <uie:Toolbar style="justify-content: space-around;">
+            <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" />
+            <uie:ToolbarSpacer style="background-color: rgb(40, 40, 40); min-width: 1px; max-width: 1px;" />
+            <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" />
+        </uie:Toolbar>
+        <ui:ListView focusable="true" />
+        <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); min-width: 100%;">
+            <ui:MultiColumnListView style="justify-content: space-around; align-self: stretch;">
+                <ui:Columns>
+                    <ui:Column name="name" title="Name" swidth="80" />
+                    <ui:Column name="starting-heath" title="Starting Health" swidth="100" />
+                    <ui:Column name="current-heath" title="Current Health" swidth="120" />
+                </ui:Columns>
+            </ui:MultiColumnListView>
+            <Z3.UIBuilder.Editor.MultiColumn focusable="true">
+                <ui:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
+                    <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" />
+                    <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" />
+                </ui:VisualElement>
+            </Z3.UIBuilder.Editor.MultiColumn>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
