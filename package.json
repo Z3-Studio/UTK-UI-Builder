@@ -1,20 +1,23 @@
 {
   "name": "com.z3.ui-builder",
   "displayName": "Z3 UI Builder",
-  "author": {
-    "name": "Z3",
-    "url": "https://github.com/Z3-Studio"
-  },
   "version": "0.1.0-beta",
+  "description": "UI Builder tools and solutions for Unity's UI Toolkit.",
   "unity": "2021.3",
-  "description": "Provides solutions to Unity.",
-  "keywords": [
-    "UI Builder",
-    "UI Toolkit"
-  ],
+  "documentationUrl": "https://github.com/Z3-Studio/UTK-UI-Builder/blob/master/README.md",
+  "changelogUrl": "https://github.com/Z3-Studio/UTK-UI-Builder/blob/master/CHANGELOG.md",
+  "licensesUrl": "https://github.com/Z3-Studio/UTK-UI-Builder/blob/master/LICENSE.md",
   "license": "Proprietary License",
-  "category": "Tool",
   "dependencies": {
     "com.z3.utils": "1.0.0"
+  },
+  "keywords": [
+    "UI Builder",
+    "UI Toolkit",
+    "Unity"
+  ],
+  "author": {
+    "name": "Z3 Studio",
+    "url": "https://z3-studio.com/"
   }
 }
