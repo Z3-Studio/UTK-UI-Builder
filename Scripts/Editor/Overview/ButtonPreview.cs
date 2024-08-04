@@ -4,6 +4,9 @@ using Z3.UIBuilder.Core;
 
 namespace Z3.UIBuilder.Editor
 {
+    /// <summary>
+    /// Implementation: <see cref="ButtonAttributeProcessor"/>
+    /// </summary>
     public class ButtonPreview
     {
         [SerializeField] private Button declarationExample;
@@ -22,6 +25,11 @@ namespace Z3.UIBuilder.Editor
         public void MethodExample()
         {
             Debug.Log("You pressed method example");
+
+
+            // TODO: UnityEditor.PopupWindow and UnityEditor.EditorUtility.DisplayDialogComplex
         }
+
+        public string test;
     }
 }

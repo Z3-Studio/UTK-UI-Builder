@@ -33,11 +33,12 @@ namespace Z3.UIBuilder.Editor
 
         public static void SetupTitle(TitleAttribute attribute, VisualElement element)
         {
-            int index = element.parent.IndexOf(element);
             Label label = GetTitle(attribute.Text);
             label.style.marginLeft = 3;
             label.style.marginTop = 3;
             label.style.marginLeft = 3;
+
+            int index = element.parent.IndexOf(element);
             element.parent.Insert(index, label);
         }
 

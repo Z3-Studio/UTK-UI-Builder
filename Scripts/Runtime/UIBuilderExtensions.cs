@@ -1,4 +1,7 @@
 ﻿using System;
+using UnityEditor;
+using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Z3.UIBuilder.ExtensionMethods
@@ -51,6 +54,12 @@ namespace Z3.UIBuilder.ExtensionMethods
                 element.UnregisterCallback<AttachToPanelEvent>(SetupMember);
                 action();
             }
+        }
+
+        public static void Bind(this VisualElement element, UnityEngine.Object obj)
+        {
+            SerializedObject serializedObject = new SerializedObject(obj);
+            BindingExtensions.Bind(element, serializedObject);
         }
     }
 }

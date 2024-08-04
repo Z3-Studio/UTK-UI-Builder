@@ -1,10 +1,8 @@
 ﻿using System.Reflection;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using Z3.Utils.ExtensionMethods;
-using Z3.Utils;
 using Z3.UIBuilder.Core;
 
 namespace Z3.UIBuilder.Editor

@@ -24,9 +24,10 @@ namespace Z3.UIBuilder.Editor
         public bool toStringWithPrefix = true;
         public string toStringExpression;
 
-        public Func<VisualElement> onMakeItem;
+        public Func<VisualElement> onMakeItem = OnMake; //  () => .Activator.CreateInstance<T>()
         public Action addEvent;
-        public Action<VisualElement, int> onBind;
+        public Action<VisualElement, int> onBind; //  IBindElement<T>
+        public float fixedItemHeight = 22;
 
         // TODO: Unbind and destroy
 
@@ -36,6 +37,20 @@ namespace Z3.UIBuilder.Editor
         {
             listName = title;
         }
+
+        public static VisualElement OnMake()
+        {
+            return UIBuilderResources.ListElementVT.CloneTree();
+        }
+
+        public static Z3ListViewConfig SimpleTemplate<TView>() where TView : VisualElement => new Z3ListViewConfig()
+        {
+            showAddBtn = false,
+            showRemoveButton = false,
+            showReordable = false,
+            showFoldout = false,
+            onMakeItem = () => Activator.CreateInstance<TView>(),
+        };
     }
 
     public class ListViewBuilder : ListViewBuilder<object, VisualElement> // Simplified
@@ -58,14 +73,22 @@ namespace Z3.UIBuilder.Editor
 
         public TItem Selection { get; private set; }
 
-        private IList Source => listView.itemsSource;
+        private IList Source => listView.itemsSource; // IList<TItem>
 
         private ListView listView;
         private Z3ListViewConfig config;
 
         private Action createAction;
 
-        public ListViewBuilder(IList<TItem> source, Z3ListViewConfig config) : this((IList)source, config) { }
+        public ListViewBuilder(IList<TItem> source) : this((IList)source, Z3ListViewConfig.SimpleTemplate<TView>())
+        {
+
+        }
+
+        public ListViewBuilder(IList<TItem> source, Z3ListViewConfig config) : this((IList)source, config) 
+        { 
+        
+        }
 
         protected ListViewBuilder(IList source, Z3ListViewConfig config)
         {
@@ -121,16 +144,16 @@ namespace Z3.UIBuilder.Editor
         {
             createAction();
 
-            Func<VisualElement> onMakeItem = config.onMakeItem != null ? config.onMakeItem : OnMake;
             Action addEvent = config.addEvent != null ? config.addEvent : OnAddNewElement;
             Action<VisualElement, int> onBind = config.onBind != null ? config.onBind : OnBindItem;
 
             // Essencial
             listView.selectionChanged += OnSelectionChanged;
-            listView.makeItem = onMakeItem;
+            listView.makeItem = config.onMakeItem;
             listView.bindItem = onBind;
             listView.itemIndexChanged += (o, n) => Rebuild(true); // Review: Bug when reording
             listView.reorderable = config.showReordable;
+            listView.fixedItemHeight = config.fixedItemHeight;
 
             // List Style
             listView.selectionType = config.selectable ? SelectionType.Single : SelectionType.None;
@@ -182,11 +205,6 @@ namespace Z3.UIBuilder.Editor
             listView.schedule.Execute((e) => OnBuildList?.Invoke()).StartingIn(100);
         }
 
-        private VisualElement OnMake()
-        {
-            return UIBuilderResources.ListElementVT.CloneTree();
-        }
-
         private void OnSelectionChanged(IEnumerable<object> a)
         {
             TItem obj = (TItem)a.FirstOrDefault();
@@ -199,6 +217,11 @@ namespace Z3.UIBuilder.Editor
 
         private void OnBindItem(VisualElement e, int i)
         {
+            if (e is IBindElement<TItem> bindableElement)
+            {
+                bindableElement.Bind((TItem)Source[i], i);
+            }
+
             // TODO: Try to create your own Label with custom text when serializedObject change any field / OnValidate
             // I need to receive a event from each list element
             Label label = e.Q<Label>("element-name");             

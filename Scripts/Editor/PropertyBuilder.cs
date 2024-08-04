@@ -102,6 +102,7 @@ namespace Z3.UIBuilder.Editor
 
         private static object GetMemberValue(object source, string name)
         {
+            BindingFlags publicAndPrivate = ReflectionUtils.InstanceAccess;
             if (source == null)
                 return null;
 
@@ -109,12 +110,12 @@ namespace Z3.UIBuilder.Editor
 
             while (type != null)
             {
-                FieldInfo f = type.GetField(name, ReflectionUtils.PublicAndPrivate);
+                FieldInfo f = type.GetField(name, publicAndPrivate);
                 if (f != null)
                     return f.GetValue(source);
 
                 // Review it
-                PropertyInfo p = type.GetProperty(name, ReflectionUtils.PublicAndPrivate | BindingFlags.IgnoreCase);
+                PropertyInfo p = type.GetProperty(name, publicAndPrivate | BindingFlags.IgnoreCase);
                 if (p != null)
                     return p.GetValue(source, null);
 

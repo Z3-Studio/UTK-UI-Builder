@@ -29,7 +29,7 @@ namespace Z3.UIBuilder.Editor
                 if (key.IsAssignableFrom(fieldInfo.FieldType))
                 {
                     Z3Drawer attributeDrawer = Activator.CreateInstance(value) as Z3Drawer;
-                    value.GetField("m_FieldInfo", ReflectionUtils.PublicAndPrivate).SetValue(attributeDrawer, fieldInfo);
+                    value.GetField("m_FieldInfo", ReflectionUtils.InstanceAccess).SetValue(attributeDrawer, fieldInfo);
                     visualElement = attributeDrawer.CreatePropertyGUI(serializedProperty);
                     return true;
                 }

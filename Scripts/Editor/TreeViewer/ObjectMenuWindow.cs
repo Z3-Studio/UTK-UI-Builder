@@ -93,7 +93,11 @@ namespace Z3.UIBuilder.Editor.TreeViewer
         {
             inspectorContainer.Clear();
 
-            if (selectedObject.TargetObject != null)
+            if (selectedObject.TargetObject is VisualElement target)
+            {
+                inspectorContainer.Add(target);
+            }
+            else if (selectedObject.TargetObject != null)
             {
                 VisualElement property = PropertyBuilder.BuildVisualElement(selectedObject.TargetObject);
                 inspectorContainer.Add(property);
