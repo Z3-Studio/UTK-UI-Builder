@@ -19,20 +19,21 @@ namespace Z3.UIBuilder.Editor
     /// <seealso cref="EditorBuilder"/>
     /// <seealso cref="UIBuilderCache"/>
     /// <seealso cref="PropertyBuilder"/>
-    public class AttributesOverviewWindow : ObjectMenuWindow
+    public class OverviewWindow : ObjectMenuWindow
     {
-        private const string AttributeOverview = "Attributes Overview";
+        private const string WindowName = "Overview";
 
-        [MenuItem(Z3Path.UiBuilderMenuPath + AttributeOverview)]
+        [MenuItem(Z3Path.UiBuilderMenuPath + WindowName)]
         public static void OpenWindow()
         {
-            GetWindow<AttributesOverviewWindow>(AttributeOverview).Show();
+            GetWindow<OverviewWindow>(WindowName).Show();
         }
 
         protected override void BuildMenuTree(TreeMenu<object> tree)
         {
             const string AttributeDrawers = "Attribute Drawers";
             const string AttributeProcessors = "Attribute Processors";
+            const string PropertyDrawers = "Property Drawers";
 
             // Attribute Drawers
             AddRoot(tree, AttributeDrawers, $"Attribute: {nameof(Z3VisualElementAttribute).ToBold()} Drawer: {nameof(Z3AttributeDrawer<Z3VisualElementAttribute>).ToBold()}");
@@ -48,6 +49,11 @@ namespace Z3.UIBuilder.Editor
             Add<ButtonPreview>(tree, AttributeProcessors);
             Add<InfoBoxPreview>(tree, AttributeProcessors);
 
+            // Property Drawers
+            AddRoot(tree, PropertyDrawers, $"Custom drawers for specific Properties. Drawer: {nameof(Z3PropertyDrawer<object>).ToBold()}");
+            Add<DictionaryPreview>(tree, PropertyDrawers);
+            //Add<InterfacePreview>(tree, PropertyDrawers);
+                
             const string Experimental = "Experimental";
             AddRoot(tree, Experimental, "Experiements to build new ideas");
             tree.Add(Experimental + "/Table List", TableListDrawer.DrawTable());
@@ -55,7 +61,6 @@ namespace Z3.UIBuilder.Editor
             tree.Add(Experimental + "/Pie Chart", new PieChart() { value = 60 });
             tree.Add(Experimental + "/Radial Progress", new RadialProgress() { progress = 60 });
 
-            // Should I display Attribute PropertyDrawer?
 
             // TODO: Use reflection to find all classes as: https://www.foundations.unity.com/components            
         }
