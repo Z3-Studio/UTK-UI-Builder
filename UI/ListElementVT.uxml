@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
-    <Style src="project://database/Assets/Modules/UIBuilder/UI/ListElementStyle.uss?fileID=7433441132597879392&amp;guid=ba781c23c3d26524ba80fda3d8664435&amp;type=3#ListElementStyle" />
+    <Style src="project://database/Packages/com.z3.ui-builder/UI/ListStyle.uss?fileID=7433441132597879392&amp;guid=06d2b6a4e0e0db94c966a720694a0d54&amp;type=3#ListStyle" />
     <ui:VisualElement name="list-element-container">
-        <ui:Button text="x" display-tooltip-when-elided="true" name="remove-button" tooltip="Remove" class="button-list" />
+        <ui:Button text="x" display-tooltip-when-elided="true" name="remove-button" tooltip="Remove" class="button-list z3-button-list" />
         <ui:Label tabindex="-1" display-tooltip-when-elided="false" name="element-name" />
     </ui:VisualElement>
 </ui:UXML>

@@ -9,7 +9,7 @@ namespace Z3.UIBuilder.Editor
 
         public static void SetSmallEditorButton(IStyle style)
         {
-            style.minWidth = new Length(20, LengthUnit.Pixel);
+            style.minWidth = new Length(18, LengthUnit.Pixel);
             style.borderTopWidth = 1f;
             style.borderBottomWidth = 1f;
             style.marginLeft = 10;
