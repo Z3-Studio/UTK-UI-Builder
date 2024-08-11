@@ -18,9 +18,11 @@
     overflow: hidden;
     text-overflow: ellipsis;
     -unity-text-align: middle-left;
-    flex-grow: 1;
     right: 30px;
     position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
 }
 
 .z3-button-list {

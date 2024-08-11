@@ -14,6 +14,7 @@ namespace Z3.UIBuilder.Editor
 {
     public class Z3ListViewConfig
     {
+        public string tooltip;
         public string listName;
         public bool showAddBtn = true;
         public bool showRemoveButton = true;
@@ -173,13 +174,15 @@ namespace Z3.UIBuilder.Editor
             // Update name and Header position
             if (config.showFoldout)
             {
+                listView.headerTitle = config.listName;
                 Toggle target = listView.Q<Toggle>();
-                target.text = config.listName;
-
                 target.hierarchy.Add(listHeader);
+
+                target.tooltip = config.tooltip;
             }
             else
             {
+                // REVIEW IT
                 VisualElement row = new();
                 row.style.flexDirection = FlexDirection.Row;
                 row.style.justifyContent = Justify.SpaceBetween;
