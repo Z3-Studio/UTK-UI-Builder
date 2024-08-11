@@ -19,6 +19,8 @@ namespace Z3.UIBuilder.Editor
         void CreateGetSet(Func<object> get, Action<object> set);
         void Bind(object target, PropertyInfo memberInfo);
         void Bind(object target, FieldInfo memberInfo);
+
+        void SetLabel(string label);
     }
 
     public class BaseFieldReader<T> : IBaseFieldReader
@@ -30,6 +32,9 @@ namespace Z3.UIBuilder.Editor
 
         private readonly BaseField<T> field;
         private readonly EventCallback<ChangeEvent<T>> eventCallback;
+        private readonly EventCallback<BlurEvent> blur;
+
+        private bool dirty;
 
         public BaseFieldReader(BindableElement visualElement)
         {
@@ -46,10 +51,28 @@ namespace Z3.UIBuilder.Editor
             VisualElement = baseField;
             field = baseField;
 
-            eventCallback = _ => OnChangeValue?.Invoke();
-            field.RegisterValueChangedCallback(eventCallback);
+            eventCallback = _ =>
+            {
+                dirty = true;
+            };
 
-            // Maybe should use BlurEvent
+            blur = _ =>
+            {
+                // Maybe check if the original value is different before call
+                if (!dirty)
+                    return;
+
+                dirty = false;
+                OnChangeValue?.Invoke();
+            };
+            
+            field.RegisterValueChangedCallback(eventCallback);
+            field.RegisterCallback(blur);
+        }
+
+        public void SetLabel(string label)
+        {
+            field.label = label;
         }
 
         public void Bind(object target, PropertyInfo propertyInfo)
@@ -101,6 +124,7 @@ namespace Z3.UIBuilder.Editor
                 return;
 
             field.UnregisterCallback(eventCallback);
+            field.UnregisterCallback(blur);
         }
     }
 }
