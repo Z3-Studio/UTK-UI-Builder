@@ -17,13 +17,11 @@ namespace Z3.UIBuilder.Core
         public int FixedItemHeight { get; set; } = 22; // BaseVerticalCollectionView.s_DefaultItemHeight
 
         public Func<TViewElement> onMake;
-        public Action<TViewElement, TreeItem<TContent>, int> onBind;
         public INotifyValueChanged<string> searchField;
 
         public TreeViewConfig()
         {
             onMake = MakeItem;
-            onBind = BindItem; 
         }
 
         private TViewElement MakeItem()
@@ -33,19 +31,12 @@ namespace Z3.UIBuilder.Core
             return item;
         }
 
-        private void BindItem(TViewElement viewElement, TreeItem<TContent> element, int index)
-        {
-            if (viewElement is IBindElement<TreeItem<TContent>> bindableElement)
-            {
-                bindableElement.Bind(element, index);
-            }
-        }
     }
 
     public class TreeViewContainer<TContent, TViewElement> where TViewElement : VisualElement
     {
         // Events
-        public event Action<TViewElement, TreeItem<TContent>, int> OnBindItem;
+        public event Action<TViewElement, TreeItem<TContent>> OnBindItem;
 
         public event Action<TreeItem<TContent>> OnChangeSelection;
 
@@ -155,8 +146,12 @@ namespace Z3.UIBuilder.Core
             TreeItem<TContent> item = TreeView.GetItemDataForIndex<TreeItem<TContent>>(i);
             TViewElement tViewElement = e as TViewElement;
 
-            TreeConfig.onBind(tViewElement, item, i);
-            OnBindItem?.Invoke(tViewElement, item, i);
+            if (e is IBindElement<TreeItem<TContent>> bindableElement)
+            {
+                bindableElement.Bind(item, i);
+            }
+
+            OnBindItem?.Invoke(tViewElement, item);
         }
 
         private void Select(IEnumerable<object> obj)

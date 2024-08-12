@@ -2,13 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using UnityEngine.UIElements;
 using Z3.UIBuilder.Core;
-using Z3.UIBuilder.Editor.ExtensionMethods;
 using Z3.UIBuilder.ExtensionMethods;
 using Z3.Utils;
-using Z3.Utils.ExtensionMethods;
 
 namespace Z3.UIBuilder.Editor
 {
@@ -27,9 +24,9 @@ namespace Z3.UIBuilder.Editor
 
         public Func<VisualElement> onMakeItem = OnMake; //  () => .Activator.CreateInstance<T>()
         public Action addEvent;
-        public Action<VisualElement, int> onBind; //  IBindElement<T>
         public float fixedItemHeight = 22;
 
+        // TODO: Option to create Copy and Paste, and include callbacks.
         // TODO: Unbind and destroy
 
         public Z3ListViewConfig() { }
@@ -39,10 +36,7 @@ namespace Z3.UIBuilder.Editor
             listName = title;
         }
 
-        public static VisualElement OnMake()
-        {
-            return UIBuilderResources.ListElementVT.CloneTree();
-        }
+        public static VisualElement OnMake() => new ListElementView();
 
         public static Z3ListViewConfig SimpleTemplate<TView>() where TView : VisualElement => new Z3ListViewConfig()
         {
@@ -54,7 +48,13 @@ namespace Z3.UIBuilder.Editor
         };
     }
 
-    public class ListViewBuilder : ListViewBuilder<object, VisualElement> // Simplified
+    public interface IListView
+    {
+        Z3ListViewConfig Config { get; }
+        void DeleteElement(object element);
+    }
+
+    public class ListViewBuilder<TItem> : ListViewBuilder<TItem, ListElementView> // Simplified
     {
         public ListViewBuilder(IList source, Z3ListViewConfig config) : base(source, config)
         {
@@ -64,7 +64,7 @@ namespace Z3.UIBuilder.Editor
     /// <summary>
     /// Copy of <see cref="Z3ListViewOld<>"/>
     /// </summary>
-    public class ListViewBuilder<TItem, TView> : VisualElement where TView : VisualElement
+    public class ListViewBuilder<TItem, TView> : VisualElement, IListView where TView : VisualElement
     {
         [UIElement] private Button addButton;
 
@@ -72,14 +72,18 @@ namespace Z3.UIBuilder.Editor
         public event Action<TItem> OnDelete;
         public event Action OnBuildList;
 
+        public Action<TView, TItem, int> onBind; // TODO: Remove int
+
         public TItem Selection { get; private set; }
 
         private IList Source => listView.itemsSource; // IList<TItem>
 
+        public Z3ListViewConfig Config { get; }
+
         private ListView listView;
-        private Z3ListViewConfig config;
 
         private Action createAction;
+        public VisualElement Header { get; private set; }
 
         public ListViewBuilder(IList<TItem> source) : this((IList)source, Z3ListViewConfig.SimpleTemplate<TView>())
         {
@@ -93,7 +97,7 @@ namespace Z3.UIBuilder.Editor
 
         protected ListViewBuilder(IList source, Z3ListViewConfig config)
         {
-            this.config = config;
+            Config = config;
 
             if (config.listName == null)
             {
@@ -145,24 +149,23 @@ namespace Z3.UIBuilder.Editor
         {
             createAction();
 
-            Action addEvent = config.addEvent != null ? config.addEvent : OnAddNewElement;
-            Action<VisualElement, int> onBind = config.onBind != null ? config.onBind : OnBindItem;
+            Action addEvent = Config.addEvent != null ? Config.addEvent : OnAddNewElement;
 
             // Essencial
             listView.selectionChanged += OnSelectionChanged;
-            listView.makeItem = config.onMakeItem;
-            listView.bindItem = onBind;
+            listView.makeItem = Config.onMakeItem;
+            listView.bindItem = OnBindItem;
             listView.itemIndexChanged += (o, n) => Rebuild(true); // Review: Bug when reording
-            listView.reorderable = config.showReordable;
-            listView.fixedItemHeight = config.fixedItemHeight;
+            listView.reorderable = Config.showReordable;
+            listView.fixedItemHeight = Config.fixedItemHeight;
 
             // List Style
-            listView.selectionType = config.selectable ? SelectionType.Single : SelectionType.None;
+            listView.selectionType = Config.selectable ? SelectionType.Single : SelectionType.None;
             listView.reorderMode = ListViewReorderMode.Animated;
             listView.showAlternatingRowBackgrounds = AlternatingRowBackground.None;
 
             listView.showBorder = true;
-            listView.showFoldoutHeader = config.showFoldout;
+            listView.showFoldoutHeader = Config.showFoldout;
             listView.showBoundCollectionSize = false; // Only with Foldout
             listView.horizontalScrollingEnabled = false;
             listView.showAddRemoveFooter = false;
@@ -172,34 +175,37 @@ namespace Z3.UIBuilder.Editor
             listHeader.BindUIElements(this);
 
             // Update name and Header position
-            if (config.showFoldout)
+            if (Config.showFoldout)
             {
-                listView.headerTitle = config.listName;
+                listView.headerTitle = Config.listName;
                 Toggle target = listView.Q<Toggle>();
                 target.hierarchy.Add(listHeader);
 
-                target.tooltip = config.tooltip;
+                target.tooltip = Config.tooltip;
+
+                Header = target;
             }
             else
             {
-                // REVIEW IT
+                // Note: Setting listView.headerTitle doesn't create a label
                 VisualElement row = new();
                 row.style.flexDirection = FlexDirection.Row;
                 row.style.justifyContent = Justify.SpaceBetween;
 
-                Label listName = new Label(config.listName);
+                Label listName = new Label(Config.listName);
                 row.Add(listName);
                 row.Add(listHeader);
 
                 listView.hierarchy.Insert(0, row);
+                Header = row;
             }
 
             addButton.clickable = new Clickable(addEvent);
-            addButton.visible = config.showAddBtn;
+            addButton.visible = Config.showAddBtn;
 
             Add(listView);
 
-            if (config.selectable && Source.Count > 0)
+            if (Config.selectable && Source.Count > 0)
             {
                 listView.SetSelection(0);
             }
@@ -220,62 +226,45 @@ namespace Z3.UIBuilder.Editor
 
         private void OnBindItem(VisualElement e, int i)
         {
+            TItem element = (TItem)Source[i];
+
             if (e is IBindElement<TItem> bindableElement)
             {
-                bindableElement.Bind((TItem)Source[i], i);
+                bindableElement.Bind(element, i);
+            }
+            else if (e is ListElementView listElement)
+            {
+                listElement.Bind(this, element, i);
             }
 
-            // TODO: Try to create your own Label with custom text when serializedObject change any field / OnValidate
-            // I need to receive a event from each list element
-            Label label = e.Q<Label>("element-name");             
+            TView view = (TView)e;
+            onBind?.Invoke(view, element, i);
+        }
 
-            if (label != null) // Only with base template
+        void IListView.DeleteElement(object element) => DeleteElement((TItem)element);
+
+        public void DeleteElement(TItem element) // Maybe option to remove using index?
+        {
+            Source.Remove(element);
+            OnDelete?.Invoke(element);
+
+            /*if (element.Equals(Selection))
             {
-                label.RegisterUpdate(UpdateLabel);
-
-                void UpdateLabel() // TODO: Improve performance
+                if (Source.Count == 0)
                 {
-                    label.text = ToStringElement(Source[i]);
+                    SetSelection(-1);
                 }
-            }
-
-            Button removeButton = e.Q<Button>("remove-button");
-
-            if (removeButton != null) // Only with base template
-            {
-                if (config.showRemoveButton)
+                else if (i >= Source.Count)
                 {
-                    removeButton.clickable = new(() =>
-                    {
-                        TItem element = (TItem)Source[i];
-
-                        Source.Remove(element);
-                        OnDelete?.Invoke(element);
-
-                        /*if (element.Equals(Selection))
-                        {
-                            if (Source.Count == 0)
-                            {
-                                SetSelection(-1);
-                            }
-                            else if (i >= Source.Count)
-                            {
-                                SetSelection(i - 1);
-                            }
-                            else
-                            {
-                                SetSelection(i);
-                            }
-                        }*/
-
-                        Rebuild(true);
-                    });
+                    SetSelection(i - 1);
                 }
                 else
                 {
-                    removeButton.visible = false; 
+                    SetSelection(i);
                 }
-            }
+            }*/
+
+            Rebuild(true);
         }
 
         private void OnAddNewElement()
@@ -295,38 +284,6 @@ namespace Z3.UIBuilder.Editor
 
             Clear();
             BuildListView();
-        }
-
-        private string ToStringElement(object element)
-        {
-            if (element == null)
-                return "Null";
-
-            string toString;
-
-            if (string.IsNullOrEmpty(config.toStringExpression))
-            {
-                toString = element.ToString();
-            }
-            else
-            {
-                toString = ExecuteToStringExpression(element, config.toStringExpression);
-            }
-
-            if (!config.toStringWithPrefix)
-                return toString;
-
-            string prefix = element.GetTypeNiceString();
-            return prefix + " " + toString.AddRichTextColor(EditorStyle.DarkLabel);
-        }
-
-        // TODO: Move to static
-        private string ExecuteToStringExpression(object obj, string toStringExpression)
-        {
-            ParameterExpression param = Expression.Parameter(obj.GetType(), "x");
-            LambdaExpression lambda = Expression.Lambda(Expression.PropertyOrField(param, toStringExpression), param);
-            Delegate func = lambda.Compile();
-            return func.DynamicInvoke(obj) as string;
         }
     }
 }
