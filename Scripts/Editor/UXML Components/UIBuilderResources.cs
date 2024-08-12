@@ -9,7 +9,9 @@ namespace Z3.UIBuilder.Editor
         [SerializeField] private VisualTreeAsset listHeaderVT;
         [SerializeField] private VisualTreeAsset listElementVT;
         [SerializeField] private VisualTreeAsset objectMenuWindowVT;
+        [SerializeField] private VisualTreeAsset propertyListElementVT;
 
+        public static VisualTreeAsset PropertyListElementVT => Instance.propertyListElementVT;
         public static VisualTreeAsset ListHeaderVT => Instance.listHeaderVT;
         public static VisualTreeAsset ListElementVT => Instance.listElementVT;
         public static VisualTreeAsset ObjectMenuWindow => Instance.objectMenuWindowVT;

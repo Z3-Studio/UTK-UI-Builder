@@ -8,7 +8,7 @@ using Z3.Utils.ExtensionMethods;
 
 namespace Z3.UIBuilder.Editor
 {
-    public class ListElementView : VisualElement
+    public class LabelView : VisualElement
     {
         [UIElement] private Label elementName;
         [UIElement] private Button removeButton;
@@ -19,7 +19,7 @@ namespace Z3.UIBuilder.Editor
         private Z3ListViewConfig Config => listView.Config;
         private IListView listView;
 
-        public ListElementView()
+        public LabelView()
         {
             UIBuilderResources.ListElementVT.CloneTree(this);
             this.BindUIElements();

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine.UIElements;
 using Z3.UIBuilder.Core;
 using Z3.UIBuilder.ExtensionMethods;
@@ -36,7 +37,7 @@ namespace Z3.UIBuilder.Editor
             listName = title;
         }
 
-        public static VisualElement OnMake() => new ListElementView();
+        public static VisualElement OnMake() => new LabelView();
 
         public static Z3ListViewConfig SimpleTemplate<TView>() where TView : VisualElement => new Z3ListViewConfig()
         {
@@ -44,6 +45,15 @@ namespace Z3.UIBuilder.Editor
             showRemoveButton = false,
             showReordable = false,
             showFoldout = false,
+            onMakeItem = () => Activator.CreateInstance<TView>(),
+        };
+
+        public static Z3ListViewConfig DefaultTemplate<TView>() where TView : VisualElement => new Z3ListViewConfig()
+        {
+            showAddBtn = true,
+            showRemoveButton = true,
+            showReordable = true,
+            showFoldout = true,
             onMakeItem = () => Activator.CreateInstance<TView>(),
         };
     }
@@ -54,9 +64,9 @@ namespace Z3.UIBuilder.Editor
         void DeleteElement(object element);
     }
 
-    public class ListViewBuilder<TItem> : ListViewBuilder<TItem, ListElementView> // Simplified
+    public class ListViewBuilder<TItem> : ListViewBuilder<TItem, LabelView> // Simplified
     {
-        public ListViewBuilder(IList source, Z3ListViewConfig config) : base(source, config)
+        public ListViewBuilder(IList<TItem> source) : base(source, Z3ListViewConfig.DefaultTemplate<LabelView>())
         {
         }
     }
@@ -70,9 +80,9 @@ namespace Z3.UIBuilder.Editor
 
         public event Action<TItem> OnSelectChange;
         public event Action<TItem> OnDelete;
-        public event Action OnBuildList;
+        public event Action OnBuildList; // TODO: Review it
 
-        public Action<TView, TItem, int> onBind; // TODO: Remove int
+        public Action<TView, TItem, int> onBind; // TODO: Remove it
 
         public TItem Selection { get; private set; }
 
@@ -152,6 +162,7 @@ namespace Z3.UIBuilder.Editor
             Action addEvent = Config.addEvent != null ? Config.addEvent : OnAddNewElement;
 
             // Essencial
+            listView.style.marginTop = 8;
             listView.selectionChanged += OnSelectionChanged;
             listView.makeItem = Config.onMakeItem;
             listView.bindItem = OnBindItem;
@@ -209,6 +220,8 @@ namespace Z3.UIBuilder.Editor
             {
                 listView.SetSelection(0);
             }
+            Label label = listView.Q<Label>();
+            label.style.marginTop = 3;
 
             // TODO: Find a better solution
             listView.schedule.Execute((e) => OnBuildList?.Invoke()).StartingIn(100);
@@ -232,7 +245,7 @@ namespace Z3.UIBuilder.Editor
             {
                 bindableElement.Bind(element, i);
             }
-            else if (e is ListElementView listElement)
+            else if (e is LabelView listElement)
             {
                 listElement.Bind(this, element, i);
             }

@@ -15,3 +15,4 @@ MonoBehaviour:
   listHeaderVT: {fileID: 9197481963319205126, guid: 50dd826cd2484b34f9a988d38eb1687a, type: 3}
   listElementVT: {fileID: 9197481963319205126, guid: 4d4836362849b8b43b9ac47d673aec3e, type: 3}
   objectMenuWindowVT: {fileID: 9197481963319205126, guid: 39e9b7c52d88f0e4b803b5f2272cc10c, type: 3}
+  propertyListElementVT: {fileID: 9197481963319205126, guid: 6348272d5dcde2f41b359ac9915433c3, type: 3}
