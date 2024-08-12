@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEditor;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Z3.UIBuilder.ExtensionMethods
@@ -35,11 +34,7 @@ namespace Z3.UIBuilder.ExtensionMethods
 
         public static void ExecuteWhenAttach(this VisualElement element, Action action)
         {
-            //root.schedule.Execute(() =>
-            //{
-            //    BuildVisualElements(root, target);
-            //}).StartingIn(0);
-
+            // Note: An alternative method is using schedule with start 0
             if (element.panel != null)
             {
                 action();

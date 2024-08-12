@@ -6,7 +6,10 @@ namespace Z3.UIBuilder.Editor
     {
         protected override void Draw()
         {
-            TitleBuilder.SetupTitle(Attribute, VisualElement);
+            TitleView title = new TitleView(Attribute);
+
+            int index = VisualElement.parent.IndexOf(VisualElement);
+            VisualElement.parent.Insert(index, title);
         }
     }
 }
