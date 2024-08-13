@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Z3.UIBuilder.Editor
@@ -13,6 +15,30 @@ namespace Z3.UIBuilder.Editor
         public override VisualElement CreateInspectorGUI()
         {
             return EditorBuilder.BuildEditor(this);
+        }
+
+        public ObjectField GetMonoScript()
+        {
+            MonoScript monoScript;
+            if (target is ScriptableObject)
+            {
+                monoScript = MonoScript.FromScriptableObject((ScriptableObject)target);
+            }
+            else
+            {
+                monoScript = MonoScript.FromMonoBehaviour((MonoBehaviour)target);
+            }
+
+            ObjectField objectField = new ObjectField()
+            {
+                label = "Script",
+                value = monoScript
+            };
+
+            objectField.SetEnabled(false);
+            objectField.bindingPath = "m_Script";
+            objectField.Bind(serializedObject);
+            return objectField;
         }
     }
 }

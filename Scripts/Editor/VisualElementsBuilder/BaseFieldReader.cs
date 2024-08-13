@@ -11,11 +11,14 @@ namespace Z3.UIBuilder.Editor
 {
     public interface IBaseFieldReader : IDisposable
     {
-        event Action OnChangeValue;
+        event Action OnValueChangedAfterBlur;
+        event Action OnValueChange;
+
         public bool TwoWay { get; }
         object Value { get; }
         BindableElement VisualElement { get; }
 
+        void SetValue(object value);
         void CreateGetSet(Func<object> get, Action<object> set);
         void Bind(object target, PropertyInfo memberInfo);
         void Bind(object target, FieldInfo memberInfo);
@@ -28,7 +31,8 @@ namespace Z3.UIBuilder.Editor
         public object Value => field.value;
         public BindableElement VisualElement { get; }
         public bool TwoWay => field != null;
-        public event Action OnChangeValue;
+        public event Action OnValueChangedAfterBlur;
+        public event Action OnValueChange;
 
         private readonly BaseField<T> field;
         private readonly EventCallback<ChangeEvent<T>> eventCallback;
@@ -53,6 +57,7 @@ namespace Z3.UIBuilder.Editor
 
             eventCallback = _ =>
             {
+                OnValueChange?.Invoke();
                 dirty = true;
             };
 
@@ -63,11 +68,16 @@ namespace Z3.UIBuilder.Editor
                     return;
 
                 dirty = false;
-                OnChangeValue?.Invoke();
+                OnValueChangedAfterBlur?.Invoke();
             };
             
             field.RegisterValueChangedCallback(eventCallback);
             field.RegisterCallback(blur);
+        }
+
+        public void SetValue(object value)
+        {
+            field.value = (T)value;
         }
 
         public void SetLabel(string label)

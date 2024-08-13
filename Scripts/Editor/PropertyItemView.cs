@@ -30,10 +30,13 @@ namespace Z3.UIBuilder.Editor
 
             IBaseFieldReader baseField = EditorBuilder.GetElement(propertyListField.ElementType);
             baseField.SetLabel(property.displayName);
+            baseField.SetValue(property.GetValue());
 
             BindableElement element = baseField.VisualElement;
             element.bindingPath = property.propertyPath;
             element.Bind(property.serializedObject);
+
+            baseField.OnValueChange += propertyListField.ContentChange;
 
             elementName.Add(element);
         }
@@ -50,6 +53,8 @@ namespace Z3.UIBuilder.Editor
         public SerializedProperty property { get; }
         public Type ElementType { get; }
 
+        public event Action OnValueChanged;
+
         private IList source;
         private ListView listView;
 
@@ -61,6 +66,8 @@ namespace Z3.UIBuilder.Editor
             ElementType = source.GetType().GetGenericArguments()[0];
             Build();
         }
+
+        internal void ContentChange() => OnValueChanged?.Invoke();
 
         [UIElement("add-button")]
         public void OnAddNewElement()

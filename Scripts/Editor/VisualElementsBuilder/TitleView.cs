@@ -8,22 +8,21 @@ namespace Z3.UIBuilder.Editor
     {
         public TitleView(string labelText = null) : base(labelText)
         {
+            style.marginTop = 3;
             style.borderBottomColor = new StyleColor(new Color(.4f, .4f, .4f));
             style.borderBottomWidth = new StyleFloat(1);
             style.unityFontStyleAndWeight = FontStyle.Bold;
-        }
-
-        public TitleView(TitleAttribute attribute) : base(attribute.Text)
-        {
-            style.marginLeft = 3;
-            style.marginTop = 3;
-            style.marginLeft = 3;
 
             //label.AddToClassList("unity-header-drawer__label");
             //VisualElement container = new VisualElement();
             //container.AddToClassList("unity-decorator-drawers-container");
             //container.Add(label);
             //element.parent.Insert(index, container);
+        }
+
+        public TitleView(TitleAttribute attribute) : this(attribute.Text)
+        {
+            style.marginLeft = 3;
         }
 
         public static void AddTitle(VisualElement root, string labelText)
