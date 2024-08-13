@@ -2,6 +2,7 @@
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Z3.Utils.ExtensionMethods;
 
 namespace Z3.UIBuilder.Editor
 {
@@ -38,6 +39,7 @@ namespace Z3.UIBuilder.Editor
             objectField.SetEnabled(false);
             objectField.bindingPath = "m_Script";
             objectField.Bind(serializedObject);
+            objectField.AddAlignedStyle();
             return objectField;
         }
     }
