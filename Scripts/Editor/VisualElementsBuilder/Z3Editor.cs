@@ -21,9 +21,9 @@ namespace Z3.UIBuilder.Editor
         public ObjectField GetMonoScript()
         {
             MonoScript monoScript;
-            if (target is ScriptableObject)
+            if (target is ScriptableObject so)
             {
-                monoScript = MonoScript.FromScriptableObject((ScriptableObject)target);
+                monoScript = MonoScript.FromScriptableObject(so);
             }
             else
             {
