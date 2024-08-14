@@ -1,7 +1,7 @@
 {
   "name": "com.z3.ui-builder",
   "displayName": "Z3 UI Builder",
-  "version": "0.1.3-beta",
+  "version": "0.1.4-beta",
   "description": "UI Builder tools and solutions for Unity's UI Toolkit.",
   "unity": "2021.3",
   "documentationUrl": "https://github.com/Z3-Studio/UTK-UI-Builder/blob/master/README.md",
@@ -9,7 +9,7 @@
   "licensesUrl": "https://github.com/Z3-Studio/UTK-UI-Builder/blob/master/LICENSE.md",
   "license": "Proprietary License",
   "dependencies": {
-    "com.z3.utils": "1.0.3"
+    "com.z3.utils": "1.0.4"
   },
   "keywords": [
     "UI Builder",
