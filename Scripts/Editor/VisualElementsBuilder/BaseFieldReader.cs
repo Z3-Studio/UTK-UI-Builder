@@ -82,6 +82,9 @@ namespace Z3.UIBuilder.Editor
 
         public void SetLabel(string label)
         {
+            if (!TwoWay)
+                return;
+
             field.label = label;
         }
 

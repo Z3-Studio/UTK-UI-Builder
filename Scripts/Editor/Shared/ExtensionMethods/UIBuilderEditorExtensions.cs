@@ -107,5 +107,11 @@ namespace Z3.UIBuilder.Editor.ExtensionMethods
             newElement.BindProperty(serializedProperty);
             newElement.bindingPath = oldElement.bindingPath;
         }
+
+        public static void Bind(this VisualElement element, UnityEngine.Object obj)
+        {
+            SerializedObject serializedObject = new SerializedObject(obj);
+            BindingExtensions.Bind(element, serializedObject);
+        }
     }
 }
