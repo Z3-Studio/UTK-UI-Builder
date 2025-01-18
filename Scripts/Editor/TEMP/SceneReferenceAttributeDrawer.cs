@@ -2,12 +2,10 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Z3.UIBuilder.Core;
 
 namespace Z3.UIBuilder.Editor
 {
-    public class SceneReferenceAttribute : PropertyAttribute { }
-
-
     [CustomPropertyDrawer(typeof(SceneReferenceAttribute))]
     public class SceneReferenceAttributeDrawer : PropertyDrawer
     {

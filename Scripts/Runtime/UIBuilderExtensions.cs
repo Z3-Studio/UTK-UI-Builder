@@ -48,5 +48,31 @@ namespace Z3.UIBuilder.ExtensionMethods
                 action();
             }
         }
+
+        public static bool GeometryInitialized(this VisualElement element) => !float.IsNaN(element.resolvedStyle.width);
+
+        /// <summary>
+        /// Wait UI loading and update view, to avoid float NaN
+        /// </summary>
+        public static void WaitForGeometryInitialization(this VisualElement element, Action onReady)
+        {
+            if (GeometryInitialized(element))
+            {
+                onReady?.Invoke();
+                return;
+            }
+
+            element.RegisterCallback<GeometryChangedEvent>(GeometryCheck);
+
+            // Otherwise, register a callback to wait for initialization
+            void GeometryCheck(GeometryChangedEvent evt)
+            {
+                if (GeometryInitialized(element))
+                {
+                    element.UnregisterCallback<GeometryChangedEvent>(GeometryCheck);
+                    onReady?.Invoke();
+                }
+            }
+        }
     }
 }

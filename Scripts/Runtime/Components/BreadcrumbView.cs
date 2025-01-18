@@ -5,14 +5,14 @@ using System;
 
 namespace Z3.UIBuilder
 {
-    public class BreadcrumbView : VisualElement
+    [UxmlElement]
+    public partial class BreadcrumbView : VisualElement
     {
         private readonly List<Button> breadcrumbs = new();
 
         private readonly ScrollView navigationScrollView;
 
         public override VisualElement contentContainer => navigationScrollView;
-        public new class UxmlFactory : UxmlFactory<BreadcrumbView, UxmlTraits> { }
 
         public BreadcrumbView()
         {

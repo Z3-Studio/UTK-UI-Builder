@@ -8,13 +8,17 @@ namespace Z3.UIBuilder.Editor
     {
         [SerializeField] private VisualTreeAsset listHeaderVT;
         [SerializeField] private VisualTreeAsset listElementVT;
+        [SerializeField] private VisualTreeAsset dictionaryHeaderVT;
         [SerializeField] private VisualTreeAsset objectMenuWindowVT;
         [SerializeField] private VisualTreeAsset propertyListElementVT;
+        [SerializeField] private VisualTreeAsset popupVT;
 
         public static VisualTreeAsset PropertyListElementVT => Instance.propertyListElementVT;
+        public static VisualTreeAsset DictionaryHeaderVT => Instance.dictionaryHeaderVT;
         public static VisualTreeAsset ListHeaderVT => Instance.listHeaderVT;
         public static VisualTreeAsset ListElementVT => Instance.listElementVT;
         public static VisualTreeAsset ObjectMenuWindow => Instance.objectMenuWindowVT;
+        public static VisualTreeAsset PopupVT => Instance.popupVT;
 
         private static UIBuilderResources _Instance { get; set; }
         private static UIBuilderResources Instance

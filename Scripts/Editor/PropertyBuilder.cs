@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Reflection;
 using UnityEngine.UIElements;
 using UnityEditor;
 using UnityEditor.UIElements;
-using Z3.Utils;
 
 namespace Z3.UIBuilder.Editor
 {
@@ -46,96 +44,19 @@ namespace Z3.UIBuilder.Editor
         }
 
         /// <summary>
-        /// Get
-        /// </summary>
-        /// <param name="serializedProperty"></param>
-        /// <returns></returns>
-        public static object ResolveProperty(SerializedProperty serializedProperty)
-        {
-            // Note: This method is important due to prop.propertyPath.
-            // It happen with collections and items inside of a Serialized object (ex: structs)
-
-            string path = serializedProperty.propertyPath.Replace(".Array.data[", "[");
-            object obj = serializedProperty.serializedObject.targetObject;
-            string[] elements = path.Split('.');
-            foreach (string element in elements)
-            {
-                // Checks if the element contains an index in square brackets
-                int indexStart = element.IndexOf("[");
-                if (indexStart != -1)
-                {
-                    // Gets the name of the element
-                    string elementName = element.Substring(0, indexStart);
-
-                    // Gets the index of the element in square brackets
-                    int elementLength = element.IndexOf("]") - indexStart - 1;
-                    string indexString = element.Substring(indexStart + 1, elementLength);
-                    int index = int.Parse(indexString);
-
-                    obj = GetElementAtIndex(obj, elementName, index);
-                }
-                else
-                {
-                    // If there are no square brackets, get the element value directly
-                    obj = GetMemberValue(obj, element);
-                }
-            }
-
-            return obj;
-        }
-
-        private static object GetElementAtIndex(object source, string name, int index)
-        {
-            IEnumerable enumerable = GetMemberValue(source, name) as IEnumerable;
-            if (enumerable == null) 
-                return null;
-
-            IEnumerator enumerator = enumerable.GetEnumerator();
-            for (int i = 0; i <= index; i++)
-            {
-                if (!enumerator.MoveNext()) 
-                    return null;
-            }
-
-            return enumerator.Current;
-        }
-
-        private static object GetMemberValue(object source, string name)
-        {
-            BindingFlags publicAndPrivate = ReflectionUtils.InstanceAccess;
-            if (source == null)
-                return null;
-
-            Type type = source.GetType();
-
-            while (type != null)
-            {
-                FieldInfo f = type.GetField(name, publicAndPrivate);
-                if (f != null)
-                    return f.GetValue(source);
-
-                // Review it
-                PropertyInfo p = type.GetProperty(name, publicAndPrivate | BindingFlags.IgnoreCase);
-                if (p != null)
-                    return p.GetValue(source, null);
-
-                type = type.BaseType;
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Creates fields for the specified object using the provided root element and instance of object.
         /// </summary>
-        public static T CreateInstance<T>(VisualElement root) where T : class
+        public static T CreateInstance<T>(VisualElement root, MemberInfo memberInfo = null) where T : class
         {
             T targetInstance = Activator.CreateInstance<T>();
-            DrawInstance(root, targetInstance);
+            DrawInstance(root, targetInstance, memberInfo);
             return targetInstance;
         }
 
-        public static VisualElement BuildVisualElement<T>(T target) where T : class
+        /// <summary>
+        /// Note: Prefer to use this approach here <see cref="EditorBuilder.GetElement"/>
+        /// </summary>
+        public static VisualElement BuildVisualElement<T>(T target, MemberInfo memberInfo = null) where T : class
         {
             if (target is UnityEngine.Object obj)  // TODO: Review it
             {
@@ -145,17 +66,17 @@ namespace Z3.UIBuilder.Editor
             }
 
             VisualElement root = new VisualElement();
-            DrawInstance(root, target);
+            DrawInstance(root, target, memberInfo);
             return root;
         }
 
         /// <summary>
         /// Creates fields for the specified object using the provided root element and target object.
         /// </summary>
-        public static void DrawInstance<T>(VisualElement root, T target) where T : class  // Review and delete?
+        public static void DrawInstance<T>(VisualElement root, T target, MemberInfo memberInfo = null) where T : class  // Review and delete?
         {
             // TODO: if is visual element, create or try to bind
-            PropertyField propertyField = PropertyWrapper.CreateAsPropertyField(target);
+            PropertyField propertyField = PropertyWrapper.CreateAsPropertyField(target, memberInfo);
             root.Add(propertyField);
 
             // Trustuble

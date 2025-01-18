@@ -148,6 +148,32 @@ namespace Z3.UIBuilder.Editor
             }
         }
 
+        public static IBaseFieldReader GetElement(object target, string fieldName)
+        {
+            MemberInfo member = target.GetType().GetMember(fieldName)[0];
+            if (member is FieldInfo fieldInfo)
+            {
+                return GetElement(target, fieldInfo);
+            }
+            else if (member is PropertyInfo propertyInfo)
+            {
+
+                return GetElement(target, propertyInfo);
+            }
+
+            return null;
+        }
+
+        public static IBaseFieldReader GetElement(object target, FieldInfo field)
+        {
+            return GetElement(target, field, field.FieldType);
+        }
+
+        public static IBaseFieldReader GetElement(object target, PropertyInfo property)
+        {
+            return GetElement(target, property, property.PropertyType);
+        }
+
         public static IBaseFieldReader GetElement(object target, FieldInfo field, Type fieldType)
         {
             IBaseFieldReader element = GetElement(fieldType);

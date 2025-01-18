@@ -45,14 +45,14 @@ namespace Z3.UIBuilder.Editor
             return EditorGUIUtility.FindTexture(iconPath);
         }
 
-        public static GUIContent GetGUIContent(IconType iconType)
+        public static GUIContent GetGUIContent(IconType iconType, string text = null)
         {
             IconPaths.TryGetValue(iconType, out string iconPath);
 
             if (string.IsNullOrEmpty(iconPath))
                 return GUIContent.none;
 
-            return EditorGUIUtility.IconContent(iconPath);
+            return EditorGUIUtility.IconContent(iconPath, text);
         }
 
         public static Texture2D GetTypeIcon(Type type)

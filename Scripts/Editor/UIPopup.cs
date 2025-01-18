@@ -15,7 +15,7 @@ namespace Z3.UIBuilder.Editor
         protected void OpenGenericPopup(Vector2 windowPosition)
         {
             Rect rect = new(windowPosition.x, windowPosition.y, 0f, 0f);
-            PopupWindow.Show(rect, this);
+            UnityEditor.PopupWindow.Show(rect, this);
         }
 
         public override Vector2 GetWindowSize() => Size;

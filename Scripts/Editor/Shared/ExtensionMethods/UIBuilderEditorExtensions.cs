@@ -3,6 +3,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace Z3.UIBuilder.Editor.ExtensionMethods
 {
@@ -108,10 +109,22 @@ namespace Z3.UIBuilder.Editor.ExtensionMethods
             newElement.bindingPath = oldElement.bindingPath;
         }
 
-        public static void Bind(this VisualElement element, UnityEngine.Object obj)
+        public static void Bind(this VisualElement element, Object obj)
         {
             SerializedObject serializedObject = new SerializedObject(obj);
             BindingExtensions.Bind(element, serializedObject);
+        }
+
+        public static void BindPropertyInfo(this IBindable field, Object obj, string propertyInfoName)
+        {
+            SerializedObject serializedObject = new(obj);
+            BindPropertyInfo(field, serializedObject, propertyInfoName);
+        }
+
+        public static void BindPropertyInfo(this IBindable field, SerializedObject serializedObject, string propertyInfoName)
+        {
+            SerializedProperty property = serializedObject.FindProperty($"<{propertyInfoName}>k__BackingField");
+            field.BindProperty(property);
         }
     }
 }

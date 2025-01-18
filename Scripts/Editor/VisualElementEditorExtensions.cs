@@ -27,7 +27,7 @@ namespace Z3.UIBuilder.Editor
 
         public static object GetValue(this SerializedProperty serializedProperty)
         {
-            return PropertyBuilder.ResolveProperty(serializedProperty);
+            return PropertyResolver.ResolveProperty(serializedProperty);
         }
     }
 }

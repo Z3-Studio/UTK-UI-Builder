@@ -7,10 +7,6 @@ namespace Z3.UIBuilder.Editor
 {
     public abstract class GraphPanel : GraphView
     {
-        //public new class UxmlFactory :  UxmlFactory<CustomGraph, UxmlTraits> { }
-
-        //protected virtual string StyleSheetPath => "Assets/UI Toolkit/GraphStyleSS.uss";
-
         private const float MiniMapSize = 100f;
 
         public GraphPanel()

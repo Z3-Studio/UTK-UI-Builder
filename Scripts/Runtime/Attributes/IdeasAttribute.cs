@@ -2,6 +2,11 @@
 
 namespace Z3.UIBuilder.Core
 {
+    // It will avoid the creation of Z3PropertyDrawer, you can use VisualElement Directly. Maybe will be necessary to auto generate code
+    public sealed class VisualElementAttribute : Attribute { } // OR BASE CLASS
+
+
+
     // SceneObject vs Asset Only
     public sealed class UIElementClass : Attribute { }// RequireComponent
     public sealed class VisualTreeAttribute : Attribute { } // Path to find easily. Inspector parameters (DrawBefore, after, bind). Serialize field avalaible
@@ -32,6 +37,7 @@ namespace Z3.UIBuilder.Core
 
     // DisplayAllFields = Show properties and private fields
     public sealed class OnValueChangedAttribute : Attribute { } // Collection vs field
+    public sealed class ShowInInspector : Attribute { }
 
     public sealed class EnumToggleAttribute : Attribute { } // Toggle Button Group, Radio Button, Enum Button? (unity 6)
     public sealed class BoxPropertyAttribute : Attribute { } // property draw by default

@@ -8,4 +8,7 @@ namespace Z3.UIBuilder.Editor
     /// </summary>
     [CustomEditor(typeof(Object), true)]
     public class ObjectEditor : Z3Editor<Object> { }
+
+    //[CustomPropertyDrawer(typeof(object), true)]
+    //public class ObjectPropertyDrawer : Z3PropertyDrawer<Object> { }
 }

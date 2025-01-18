@@ -66,7 +66,11 @@ namespace Z3.UIBuilder.Editor
 
     public class ListViewBuilder<TItem> : ListViewBuilder<TItem, LabelView> // Simplified
     {
-        public ListViewBuilder(IList<TItem> source) : base(source, Z3ListViewConfig.DefaultTemplate<LabelView>())
+        public ListViewBuilder(IList<TItem> source, Z3ListViewConfig config) : base((IList)source, config)
+        {
+        }
+
+        public ListViewBuilder(IList<TItem> source) : this(source, Z3ListViewConfig.DefaultTemplate<LabelView>())
         {
         }
     }
@@ -100,12 +104,12 @@ namespace Z3.UIBuilder.Editor
 
         }
 
-        public ListViewBuilder(IList<TItem> source, Z3ListViewConfig config) : this((IList)source, config) 
-        { 
+        //public ListViewBuilder(IList<TItem> source, Z3ListViewConfig config) : this((IList)source, config) 
+        //{ 
         
-        }
+        //}
 
-        protected ListViewBuilder(IList source, Z3ListViewConfig config)
+        public ListViewBuilder(IList source, Z3ListViewConfig config)
         {
             Config = config;
 

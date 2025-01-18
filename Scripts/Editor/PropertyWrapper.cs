@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using UnityEditor.UIElements;
+using System.Reflection;
 
 namespace Z3.UIBuilder.Editor
 {
@@ -9,7 +10,7 @@ namespace Z3.UIBuilder.Editor
     {
         [SerializeReference] public object property;
 
-        public static PropertyField CreateAsPropertyField(object instance)
+        public static PropertyField CreateAsPropertyField(object instance, MemberInfo memberInfo)
         {
             // Instantiate Wrapper
             PropertyWrapper genericProperty = CreateInstance<PropertyWrapper>();
@@ -21,6 +22,12 @@ namespace Z3.UIBuilder.Editor
 
             PropertyField propertyField = serializedProperty.ToPropertyField();
             propertyField.Bind(serializedObject);
+
+            if (memberInfo != null)
+            {
+                EditorBuilder.ApplyAttributes(serializedProperty, propertyField, memberInfo);
+            }
+
             return propertyField;
         }
 

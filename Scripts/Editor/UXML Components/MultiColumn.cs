@@ -1,34 +1,19 @@
-﻿using System.Collections.Generic;
-using UnityEditor;
-using UnityEngine;
+﻿using UnityEditor;
 using UnityEngine.UIElements;
-using static Codice.CM.WorkspaceServer.WorkspaceTreeDataStore;
 
 namespace Z3.UIBuilder.Editor
 {
-    public class CustomMultiColumnListView : MultiColumnListView
-    {
-        public new class UxmlFactory : UxmlFactory<CustomMultiColumnListView, UxmlTraits> { }
+    [UxmlElement]
+    public partial class CustomMultiColumnListView : MultiColumnListView { }
 
-    }
+    //[UxmlElement]
+    //public class CustomMultiColumnListViewController : MultiColumnListViewController { }
 
-    //public class CustomMultiColumnListViewController : MultiColumnListViewController
-    //{
-    //    public new class UxmlFactory : UxmlFactory<CustomMultiColumnListViewController, UxmlTraits> { }
+    //[UxmlElement]
+    //public class CustomColumns : Columns { }
 
-    //}
-
-    //public class CustomColumns : Columns
-    //{
-    //    public new class UxmlFactory : UxmlFactory<CustomColumns, UxmlTraits> { }
-
-    //}
-
-    //public class CustomColumn : Column
-    //{
-    //    public new class UxmlFactory : UxmlFactory<CustomColumn, UxmlTraits> { }
-
-    //}
+    //[UxmlElement]
+    //public class CustomColumn : Column { }
 
 
     public class Test : EditorWindow
