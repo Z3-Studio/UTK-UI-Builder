@@ -89,7 +89,31 @@ namespace Z3.UIBuilder.Editor
                 // - Remember to create nested implementations
 
                 // Declared Visual Elements
-                GenerateVisualElements(root, target);
+                IEnumerable<FieldInfo> query = ReflectionUtils.GetAllFields(target)
+                    .Where(f => typeof(VisualElement).IsAssignableFrom(f.FieldType) && f.GetCustomAttribute<BuildUIElementAttribute>() != null);
+
+                foreach (FieldInfo field in query)
+                {
+                    VisualElement visualElement = field.GetValue(target) as VisualElement;
+
+                    if (visualElement == null)
+                    {
+                        visualElement = Activator.CreateInstance(field.FieldType) as VisualElement;
+                        visualElement.name = field.Name;
+                        field.SetValue(target, visualElement);
+                    }
+                    
+                    if (root is PropertyField prop)
+                    {
+                        prop.Q<Foldout>().Add(visualElement);
+                    }
+                    else
+                    {
+                        root.Add(visualElement);
+                    }
+                }
+
+                //GenerateVisualElements(root, target);
 
                 // Only editor classes 
                 if (root is not PropertyField)

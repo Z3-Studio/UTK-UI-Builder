@@ -2,6 +2,11 @@
 
 namespace Z3.UIBuilder.Core
 {
+    public sealed class BuildUIElementAttribute : Attribute
+    {
+
+    }
+
     /// <summary>
     /// Used to bind Elemenets
     /// </summary>

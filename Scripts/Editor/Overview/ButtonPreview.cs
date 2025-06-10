@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UIElements;
 using Z3.UIBuilder.Core;
+using Z3.Utils.ExtensionMethods;
 
 namespace Z3.UIBuilder.Editor
 {
@@ -9,27 +10,31 @@ namespace Z3.UIBuilder.Editor
     /// </summary>
     public class ButtonPreview
     {
-        [SerializeField] private Button declarationExample;
-        public Button declarationExample2;
+        public string test; // TODO: Remove this. For some reason add a basic field is required to appear buttons
+        [BuildUIElement] public Button declarationExample;
+        [BuildUIElement] public Button declarationExample2 = new() { text = "Hi" };
+
+        [SerializeField] private Button nonVisible;
 
         [OnInitInspector]
         public void OnCreate()
         {
+            declarationExample.text = nameof(declarationExample).ToNiceString();
             declarationExample.clicked += () =>
             {
-                Debug.Log("You pressed declaration example");
+                UnityEditor.EditorUtility.DisplayDialog(nameof(ButtonPreview), $"You pressed {nameof(declarationExample)}", "Ok");
+            }; 
+            
+            declarationExample.clicked += () =>
+            {
+                UnityEditor.EditorUtility.DisplayDialog(nameof(ButtonPreview), $"You pressed {nameof(declarationExample2)}", "Ok");
             };
         }
 
         [Button]
         public void MethodExample()
         {
-            Debug.Log("You pressed method example");
-
-
-            // TODO: UnityEditor.PopupWindow and UnityEditor.EditorUtility.DisplayDialogComplex
+            UnityEditor.EditorUtility.DisplayDialog(nameof(ButtonPreview), $"You pressed {nameof(MethodExample)}", "Ok");
         }
-
-        public string test;
     }
 }
