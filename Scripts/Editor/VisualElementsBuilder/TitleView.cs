@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UIElements;
 using Z3.UIBuilder.Core;
+using Z3.Utils.ExtensionMethods;
 
 namespace Z3.UIBuilder.Editor
 {
@@ -24,15 +25,16 @@ namespace Z3.UIBuilder.Editor
             //element.parent.Insert(index, container);
         }
 
-        public TitleView(TitleAttribute attribute) : this(attribute.Text)
+        public TitleView(TitleAttribute attribute) : this(attribute.Format ? attribute.Text.ToNiceString() : attribute.Text)
         {
             style.unityTextAlign = attribute.TextAnchor;
         }
 
-        public static void AddTitle(VisualElement root, string labelText)
+        public static TitleView AddTitle(VisualElement root, string labelText)
         {
             TitleView label = new TitleView(labelText);
             root.Add(label);
+            return label;
         }
     }
 }
