@@ -1,10 +1,24 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UIElements;
+using Z3.Utils;
 
 namespace Z3.UIBuilder.Editor
 {
     public class PropertyWindow : Z3EditorWindow
     {
         private object property;
+
+        public static PropertyWindow OpenWindow(string title, object property, Type type)
+        {
+            PropertyWindow window = CreateInstance<PropertyWindow>();
+            window.titleContent = new GUIContent(title);
+            window.property = property;
+            window.Show();
+
+            return window;
+        }
 
         public static PropertyWindow OpenWindow(string title, object property)
         {
@@ -24,7 +38,58 @@ namespace Z3.UIBuilder.Editor
                 return;
             }
 
+            if (property is IList enumerable)
+            {
+                Type subType = enumerable.GetType().GetGenericArguments()[0];
+
+                ListView listView = new ListView(enumerable)
+                {
+                    allowAdd = true,
+                    allowRemove = true,
+                    headerTitle = ReflectionUtils.TypeToNiceString(subType),
+                    showAddRemoveFooter = true,
+                    showBorder = true,
+                    showBoundCollectionSize = true,
+                    showFoldoutHeader = true,
+                    reorderable = true,
+                    makeItem = () =>
+                    {
+                        return new VisualElement();
+                    },
+                    bindItem = (v, i) =>
+                    {
+                        v.Clear();
+                        IBaseFieldReader baseField = EditorBuilder.GetElement(subType);
+                        VisualElement valueField = baseField.VisualElement;
+                        // Bind
+                        baseField.CreateGetSet
+                        (
+                            () => enumerable[i],
+                            newValue => enumerable[i] = newValue
+                        );
+
+                        // Save changes
+                        baseField.OnValueChangedAfterBlur += () =>
+                        {
+                            if (enumerable[i] == baseField.Value)
+                                return;
+
+                            enumerable[i] = baseField.Value;
+                            //OnValueChange?.Invoke();
+                        };
+
+                        // Remove Label of the value field
+                        baseField.SetLabel(string.Empty);
+
+                        v.Add(valueField);
+                    }
+                };
+                rootVisualElement.Add(listView);
+                return;
+            }
+
             PropertyBuilder.DrawInstance(rootVisualElement, property);
+            //OnValueChange?.Invoke(); Use Blur
         }
     }
 }
