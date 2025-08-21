@@ -96,7 +96,15 @@ namespace Z3.UIBuilder.Editor
             field.name = propertyInfo.Name;
             field.label = propertyInfo.Name.GetNiceString();
 
-            field.value = (T)propertyInfo.GetValue(target);
+            // TODO: Review this try catch
+            try
+            {
+                field.value = (T)propertyInfo.GetValue(target);
+            }
+            catch (Exception e)
+            {
+                propertyInfo.SetValue(target, default(T));
+            }
             field.RegisterChanges<BaseField<T>, T>(propertyInfo, target);
         }
         
@@ -108,7 +116,16 @@ namespace Z3.UIBuilder.Editor
             field.name = fieldInfo.Name;
             field.label = fieldInfo.Name.GetNiceString();
 
-            field.value = (T)fieldInfo.GetValue(target);
+            // TODO: Review this try catch
+            try
+            {
+                field.value = (T)fieldInfo.GetValue(target);
+            }
+            catch (Exception)
+            {
+
+                fieldInfo.SetValue(target, default(T));
+            }
             field.RegisterChanges<BaseField<T>, T>(fieldInfo, target);
         }
 

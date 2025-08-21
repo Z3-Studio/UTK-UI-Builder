@@ -2,10 +2,10 @@
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEditor;
 using UnityEditor.UIElements;
 using Z3.Utils.ExtensionMethods;
 using Object = UnityEngine.Object;
-using UnityEditor;
 
 namespace Z3.UIBuilder.Editor
 {
@@ -56,14 +56,17 @@ namespace Z3.UIBuilder.Editor
             if (fieldType == typeof(Vector4)) return CreateField<Vector4Field, Vector4>(fieldType);
             if (fieldType == typeof(AnimationCurve)) return CreateField<CurveField, AnimationCurve>(fieldType);
 
-            if (typeof(Object).IsAssignableFrom(fieldType)) 
+            if (typeof(Object).IsAssignableFrom(fieldType))
                 return CreateObjectFieldFromObject(fieldType);
 
             if (fieldType.IsEnum)
                 return CreateEnumField(fieldType);
 
-            if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(BaseField<>)) 
+            if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(BaseField<>))
                 return CreateBaseField(fieldType.GenericTypeArguments[0]);
+
+            //if (typeof(IEnumerable).IsAssignableFrom(fieldType))
+            //    return EnumerableFieldFactory.CreateEnumerableField(fieldType, CreateBaseField);
 
             //Type t when t == typeof(Matrix4x4) => BaseFieldBuilder.CreateField<Matrix4x4, Matrix4x4>(field, target),
             //Type t when t == typeof(Quaternion) => BaseFieldBuilder.CreateField<Vector3Field, Quaternion>(field, target),

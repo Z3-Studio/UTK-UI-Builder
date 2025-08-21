@@ -7,11 +7,9 @@ namespace Z3.UIBuilder.Editor
 {
     public class TitleView : Label
     {
-        [SerializeField] private VisualTreeAsset test;
-
         public TitleView(string labelText = null) : base(labelText)
         {
-            style.marginTop = 3f;
+            style.marginTop = 8f;
             style.marginBottom = 3f;
             style.marginLeft = 3f;
             style.borderBottomColor = new Color(.4f, .4f, .4f);

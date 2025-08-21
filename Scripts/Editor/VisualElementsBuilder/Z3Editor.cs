@@ -13,9 +13,24 @@ namespace Z3.UIBuilder.Editor
         /// <summary> Object To Draw </summary>
         protected T Target => target as T;
 
+        private VisualElement root;
+
         public override VisualElement CreateInspectorGUI()
         {
+            root = new VisualElement();
+            root.Add(CreateVisualElement());
+            return root;
+        }
+
+        protected virtual VisualElement CreateVisualElement() // TODO: Review redraw method used in DamageTable. Before that the method BuildEditor was used directly in CreateInspectorGUI
+        {
             return EditorBuilder.BuildEditor(this);
+        }
+
+        protected void Redraw() // TODO: Review redraw method used in DamageTable 
+        {
+            root.Clear();
+            root.Add(CreateVisualElement());
         }
 
         public ObjectField GetMonoScript()

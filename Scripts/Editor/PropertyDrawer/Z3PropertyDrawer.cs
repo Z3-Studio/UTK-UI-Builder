@@ -18,6 +18,10 @@ namespace Z3.UIBuilder.Editor
         // Core
         public sealed override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
+            // TODO: If this property is an array element AND you are using callbacks like Actions
+            // The SerializedProperty will be the lat element of the array
+            // For some reason is necessary to reset this when working with Arrays
+            resolvedValue = default; 
             SerializedProperty = property;
 
             VisualElement visualElement = CreateVisualElement();

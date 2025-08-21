@@ -40,6 +40,9 @@ namespace Z3.UIBuilder.Editor
 
             if (property is IList enumerable)
             {
+                //IBaseFieldReader baseField = EditorBuilder.GetElement(property, propertyInfo, type);
+                //rootVisualElement.Add(baseField.VisualElement);
+
                 Type subType = enumerable.GetType().GetGenericArguments()[0];
 
                 ListView listView = new ListView(enumerable)
