@@ -66,7 +66,14 @@ namespace Z3.UIBuilder.TreeViewer
             if (attribute == null)
                 return;
 
-            ButtonIcon = type.GetMethod(attribute.Method, ReflectionUtils.InstanceAccess).Invoke(asset, null) as Texture2D;
+            try
+            {
+                ButtonIcon = type.GetMethod(attribute.Method, ReflectionUtils.InstanceAccess).Invoke(asset, null) as Texture2D;
+            }
+            catch (Exception)
+            {
+                // TODO: Review it
+            }
         }
 
         public void SetIcon(Texture2D icon) // Editor

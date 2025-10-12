@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnityEngine.UIElements;
 using UnityEditor;
+using UnityEngine.UIElements;
+using Z3.UIBuilder.Core;
 using Z3.Utils;
 using Z3.Utils.ExtensionMethods;
-using Z3.UIBuilder.Core;
 
 namespace Z3.UIBuilder.Editor
 {
@@ -15,21 +15,23 @@ namespace Z3.UIBuilder.Editor
     {
         protected override void Draw()
         {
-            VisualElement.Insert(0, new TypeSelector(SerializedProperty));
+            VisualElement.Clear();
+            TypeSelector typeSelector = new(SerializedProperty);
+            VisualElement.Add(typeSelector);
         }
     }
 
     public class TypeSelector : VisualElement
     {
-        private struct Null { } // Useful class
+        public event Action OnChange;
 
+        private struct Null { } // Useful class
 
         PropertyResolver member;
 
         private Action<object> set;
         private Func<object> get;
-
-        private bool dirty;
+        private bool saveChangesBtn; /// TEMP
 
         private object Value
         {
@@ -37,20 +39,15 @@ namespace Z3.UIBuilder.Editor
             set => set(value);
         }
 
-        public TypeSelector(MemberInfo memberInfo, object target)
+        public TypeSelector(SerializedProperty property) : this(property.GetValue<IList>(), property.displayName, true)
         {
-            VisualElement v = DrawAsProperty(memberInfo, target);
-            Add(v);
-        }
+            OnChange += () =>
+            {
+                property.serializedObject.ApplyModifiedProperties(); // Maybe not necessary
+                EditorUtility.SetDirty(property.serializedObject.targetObject);
+            };
 
-        public TypeSelector(IList list, string fieldName = null)
-        {
-            VisualElement v = DrawAsArray(list, fieldName);
-            Add(v);
-        }
-
-        public TypeSelector(SerializedProperty property)
-        {
+            return;
             member = new PropertyResolver(property);
             member.GetMemberInfoWithParent(out MemberInfo memberInfo, out object target);
 
@@ -86,7 +83,20 @@ namespace Z3.UIBuilder.Editor
             //});
         }
 
-        private static VisualElement DrawAsArray(IList list, string fieldName = null)
+        public TypeSelector(MemberInfo memberInfo, object target)
+        {
+            VisualElement v = DrawAsProperty(memberInfo, target);
+            Add(v);
+        }
+
+        public TypeSelector(IList list, string fieldName = null, bool saveChangesBtn = false)
+        {
+            this.saveChangesBtn = saveChangesBtn;
+            VisualElement v = DrawAsArray(list, fieldName);
+            Add(v);
+        }
+
+        private VisualElement DrawAsArray(IList list, string fieldName = null)
         {
             Type elementType = list.GetType().GenericTypeArguments[0];
             ListViewBuilder<object, LabelView> listView = null;
@@ -113,6 +123,16 @@ namespace Z3.UIBuilder.Editor
             root.Add(listView);
             root.Add(inspectElement);
 
+            if (saveChangesBtn) // TEMP
+            {
+                Button saveChangesBtn = new(() =>
+                {
+                    OnChange?.Invoke();
+                });
+                saveChangesBtn.text = "Save Changes";
+                root.Add(saveChangesBtn);
+            }
+
             return root;
 
             void AddItem(Type type)
@@ -120,16 +140,41 @@ namespace Z3.UIBuilder.Editor
                 object newInstance = Activator.CreateInstance(type);
                 list.Add(newInstance);
                 listView.Rebuild(true);
-
-                //dirty = true;
+                OnChange?.Invoke();
             }
 
             void DrawSelection(object item)
             {
-
                 inspectElement.Clear();
                 VisualElement itemView = PropertyBuilder.BuildVisualElement(item);
                 inspectElement.Add(itemView);
+
+                // Maybe use property field instead of bindable
+                //foreach (VisualElement element in itemView.Query<VisualElement>().Where(v => v is IBindable).ToList())
+                //{
+                //    if (element is PropertyField propertyField)
+                //    {
+                //        propertyField.RegisterCallback<AttachToPanelEvent>(e =>
+                //        {
+                //            propertyField.schedule.Execute(() =>
+                //            {
+                //                List<BindableElement> innerBindables = propertyField.Query<BindableElement>().ToList();
+
+                //                foreach (BindableElement bindableElement in innerBindables)
+                //                {
+                //                    bindableElement.RegisterCallback<BlurEvent>(changeEvent =>
+                //                    {
+                //                        OnChange?.Invoke();
+                //                    });
+                //                }
+                //            }
+
+                //            ).StartingIn(100);
+
+                //        });
+                //    }
+                //}
+
             }
         }
 
@@ -179,8 +224,7 @@ namespace Z3.UIBuilder.Editor
                         Value = null;
                     }
 
-                    //property.serializedObject.ApplyModifiedProperties();
-                    dirty = true;
+                    OnChange?.Invoke();
                 }
 
                 itemView.Clear();

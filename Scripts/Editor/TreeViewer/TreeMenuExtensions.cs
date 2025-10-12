@@ -1,13 +1,13 @@
-﻿using UnityEditor;
-using UnityEngine;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.IO;
-using Object = UnityEngine.Object;
+using UnityEngine;
+using UnityEditor;
 using Z3.UIBuilder.TreeViewer;
 using Z3.Utils.ExtensionMethods;
+using Object = UnityEngine.Object;
 
 namespace Z3.UIBuilder.Editor
 {
@@ -22,7 +22,7 @@ namespace Z3.UIBuilder.Editor
             {
                 if (field.GetValue(mainData) is T asset)
                 {
-                    string segment = field.Name.GetNiceString();
+                    string segment = field.GetLabelName();
                     menuTree.Add(drawPath + "/" + segment, asset);
                 }
             }

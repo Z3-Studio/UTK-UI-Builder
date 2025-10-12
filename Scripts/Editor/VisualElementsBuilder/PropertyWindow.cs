@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Reflection;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Z3.Utils;
@@ -9,12 +11,14 @@ namespace Z3.UIBuilder.Editor
     public class PropertyWindow : Z3EditorWindow
     {
         private object property;
+        private MemberInfo member;
 
-        public static PropertyWindow OpenWindow(string title, object property, Type type)
+        public static PropertyWindow OpenWindow(string title, object property, Type type, MemberInfo memberInfo = null)
         {
             PropertyWindow window = CreateInstance<PropertyWindow>();
             window.titleContent = new GUIContent(title);
             window.property = property;
+            window.member = memberInfo;
             window.Show();
 
             return window;
@@ -91,8 +95,16 @@ namespace Z3.UIBuilder.Editor
                 return;
             }
 
-            PropertyBuilder.DrawInstance(rootVisualElement, property);
-            //OnValueChange?.Invoke(); Use Blur
+            PropertyField propertyField = PropertyWrapper.CreateAsPropertyField(property, member);
+            //propertyField.RegisterCallbackOnce<BlurEvent>(x =>
+            //{
+
+            //});
+
+            rootVisualElement.Add(propertyField);
+
+            // TODO: Use this
+            //PropertyBuilder.DrawInstance(rootVisualElement, property, member);
         }
     }
 }

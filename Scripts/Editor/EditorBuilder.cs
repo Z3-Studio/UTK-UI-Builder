@@ -1,11 +1,11 @@
-﻿using UnityEngine;
-using UnityEngine.UIElements;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Reflection;
+using UnityEngine;
+using UnityEngine.UIElements;
 using Z3.UIBuilder.Core;
 using Z3.UIBuilder.ExtensionMethods;
 using Z3.Utils;
@@ -51,10 +51,43 @@ namespace Z3.UIBuilder.Editor
             VisualElement root = new();
 
             InspectorElement.FillDefaultInspector(root, editor.serializedObject, editor);
-
             GenerateElementsAndAttributes(root, editor.target);
 
+            // EXPERIMENTAL: Create bug of double title in game design window, but TypeSelect works
+            ProcessAttributes(editor, root);
+
             return root;
+        }
+
+        private static void ProcessAttributes(Editor editor, VisualElement root)
+        {
+            // TODO: ApplyAttributes is already waiting for attach
+            root.ExecuteWhenAttach(() =>
+            {
+                SerializedProperty iterator = editor.serializedObject.GetIterator();
+                if (iterator.NextVisible(true))
+                {
+                    do
+                    {
+                        string propertyPath = iterator.propertyPath;
+                        VisualElement fieldElement = root.Q($"PropertyField:{propertyPath}");
+
+                        fieldElement ??= root.Q($"PropertyField:<{propertyPath}>k__BackingField");
+
+                        if (fieldElement == null)
+                            continue;
+
+                        MemberInfo memberInfo = editor.target.GetType().GetField(propertyPath, ReflectionUtils.AllDeclared);
+
+                        memberInfo ??= editor.target.GetType().GetProperty(propertyPath, ReflectionUtils.AllDeclared);
+                        if (memberInfo == null)
+                            continue;
+
+                        ApplyAttributes(iterator, fieldElement, memberInfo);
+                    }
+                    while (iterator.NextVisible(false));
+                }
+            });
         }
 
         public static void ApplyAttributes(SerializedProperty serializedProperty, VisualElement propertyField, MemberInfo memberInfo)

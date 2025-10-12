@@ -20,15 +20,32 @@ namespace Z3.UIBuilder.Core
     public sealed class InlineEditorAttribute : Attribute { } // Scriptable Object vs other objects
     public sealed class HideReferenceObjectPicker : Attribute { }
     public sealed class InlineProperty : Attribute { }
+    public sealed class VectorSlider : Attribute // Show slider in each axis
+    {
+        public VectorSlider(float min, float max)
+        {
+            
+        }
+    } 
 
     public sealed class TableMatrixAttribute : Attribute { }
     public sealed class AssetOnlyAttribute : Attribute { }
 
-    public sealed class ShowIfAttribute : Attribute 
+    public sealed class ShowIfAttribute : Attribute
     {
+        public string FieldName { get; }
+        public object ObjectToCompare { get; }
+
         public ShowIfAttribute(string fieldName)
         {
+            FieldName = fieldName;
+            ObjectToCompare = true;
+        }
 
+        public ShowIfAttribute(string fieldName, object value)
+        {
+            FieldName = fieldName;
+            ObjectToCompare = value;
         }
     }
     public sealed class EnableIfAttribute : Attribute { }

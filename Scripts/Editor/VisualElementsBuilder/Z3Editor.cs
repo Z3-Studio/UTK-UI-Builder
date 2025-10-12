@@ -1,8 +1,5 @@
-﻿using UnityEditor;
-using UnityEditor.UIElements;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
-using Z3.Utils.ExtensionMethods;
 
 namespace Z3.UIBuilder.Editor
 {
@@ -33,29 +30,6 @@ namespace Z3.UIBuilder.Editor
             root.Add(CreateVisualElement());
         }
 
-        public ObjectField GetMonoScript()
-        {
-            MonoScript monoScript;
-            if (target is ScriptableObject so)
-            {
-                monoScript = MonoScript.FromScriptableObject(so);
-            }
-            else
-            {
-                monoScript = MonoScript.FromMonoBehaviour((MonoBehaviour)target);
-            }
-
-            ObjectField objectField = new ObjectField()
-            {
-                label = "Script",
-                value = monoScript
-            };
-
-            objectField.SetEnabled(false);
-            objectField.bindingPath = "m_Script";
-            objectField.Bind(serializedObject);
-            objectField.AddAlignedStyle();
-            return objectField;
-        }
+        public void AddMonoScript(VisualElement element) => element.Add(new MonoScriptView(target, serializedObject));
     }
 }

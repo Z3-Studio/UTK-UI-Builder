@@ -26,7 +26,7 @@ namespace Z3.UIBuilder.Editor
             listHeader.BindUIElements(this);
 
             // Title
-            header.text = SerializedProperty.displayName + " [EXPERIMENTAL FEATURE]";
+            header.text = SerializedProperty.displayName;
 
             // Key add 
             Type keyType = ResolvedValue.GetType().GetGenericArguments()[0];
@@ -36,7 +36,7 @@ namespace Z3.UIBuilder.Editor
 
             // Value add
             Type valueType = ResolvedValue.GetType().GetGenericArguments()[1];
-            IBaseFieldReader valueField = EditorBuilder.GetElement(keyType);
+            IBaseFieldReader valueField = EditorBuilder.GetElement(valueType);
             valueField.SetLabel("New Value");
             newItemContainer.Add(valueField.VisualElement);
 
@@ -47,6 +47,7 @@ namespace Z3.UIBuilder.Editor
             {
                 ResolvedValue.Add(keyField.Value, valueField.Value);
                 DrawContent();
+                // TODO: Redraw, check damage
             }
 
             DrawContent();
@@ -77,23 +78,33 @@ namespace Z3.UIBuilder.Editor
                 {
                     name = "key",
                     title = "Key",
-                    width = 300,
+                    width = 200,
                     makeCell = () => new PropertyField(),
-                    bindCell = (e, i) => (e as PropertyField).BindProperty(depedencies[i].key)
+                    bindCell = (e, i) =>
+                    {
+                        PropertyField field = (PropertyField)e;
+                        field.BindProperty(depedencies[i].key);
+                        field.Q<Label>().RemoveFromHierarchy();
+                    }
                 },
                 new Column()
                 {
                     name = "value",
                     title = "Value",
-                    width = 300,
+                    width = 200,
                     makeCell = () => new PropertyField(),
-                    bindCell = (e, i) => (e as PropertyField).BindProperty(depedencies[i].value)
+                    bindCell = (e, i) =>
+                    {
+                        PropertyField field = (PropertyField)e;
+                        field.BindProperty(depedencies[i].value);
+                        field.Q<Label>().RemoveFromHierarchy();
+                    }
                 },
                 new Column()
                 {
                     name = "actions",
-                    title = "Action",
-                    width = 40,
+                    title = "Actions",
+                    width = 56,
                     makeCell = () => new Button() { text = "X" },
                     bindCell = (e, i) =>
                     {
