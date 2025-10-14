@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 using Z3.UIBuilder.Core;
 using Z3.Utils;
@@ -110,6 +111,8 @@ namespace Z3.UIBuilder.Editor
             };
 
             VisualElement inspectElement = new();
+            inspectElement.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f);
+            inspectElement.style.SetPadding(4);
 
             listView = new(list, config);
             listView.OnSelectChange += DrawSelection;
@@ -121,7 +124,7 @@ namespace Z3.UIBuilder.Editor
 
             VisualElement root = new();
             root.Add(listView);
-            root.Add(inspectElement);
+            root.Add(inspectElement); // TODO: Add to Foldout. ListView.Foldout.Add
 
             if (saveChangesBtn) // TEMP
             {
@@ -145,8 +148,11 @@ namespace Z3.UIBuilder.Editor
 
             void DrawSelection(object item)
             {
+                MonoScriptView objectField = new(item);
+
                 inspectElement.Clear();
                 VisualElement itemView = PropertyBuilder.BuildVisualElement(item);
+                inspectElement.Add(objectField);
                 inspectElement.Add(itemView);
 
                 // Maybe use property field instead of bindable
