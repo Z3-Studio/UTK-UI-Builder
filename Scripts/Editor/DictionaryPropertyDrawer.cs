@@ -46,8 +46,7 @@ namespace Z3.UIBuilder.Editor
             void Add()
             {
                 ResolvedValue.Add(keyField.Value, valueField.Value);
-                DrawContent();
-                // TODO: Redraw, check damage
+                SaveAndRedraw();
             }
 
             DrawContent();
@@ -116,7 +115,7 @@ namespace Z3.UIBuilder.Editor
                             object keyResolved = depedencies[i].key.GetValue();
                             ResolvedValue.Remove(keyResolved);
 
-                            DrawContent();
+                            SaveAndRedraw();
                         }
                     }
                 }
@@ -127,6 +126,15 @@ namespace Z3.UIBuilder.Editor
             variableTable.itemsSource = depedencies;
 
             content.Add(variableTable);
+        }
+
+        private void SaveAndRedraw()
+        {
+            SerializedProperty.serializedObject.Update(); // refresh before reading
+            SerializedProperty.serializedObject.ApplyModifiedProperties(); // commit changes
+            EditorUtility.SetDirty(SerializedProperty.serializedObject.targetObject);
+
+            DrawContent();
         }
 
         private void DictionaryBind()
