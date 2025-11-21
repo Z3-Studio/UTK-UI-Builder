@@ -9,6 +9,7 @@ using UnityEngine.UIElements;
 using Z3.UIBuilder.Core;
 using Z3.Utils;
 using Z3.Utils.ExtensionMethods;
+using Object = UnityEngine.Object;
 
 namespace Z3.UIBuilder.Editor
 {
@@ -17,7 +18,24 @@ namespace Z3.UIBuilder.Editor
         protected override void Draw()
         {
             VisualElement.Clear();
-            TypeSelector typeSelector = new(SerializedProperty);
+            object value = SerializedProperty.GetValue();
+
+            TypeSelector typeSelector;
+            if (value is IList list)
+            {
+                typeSelector = new(SerializedProperty.serializedObject.targetObject, list, SerializedProperty.displayName, true);
+            }
+            else
+            {
+                typeSelector = new(SerializedProperty.serializedObject.targetObject, MemberInfo, SerializedProperty.serializedObject.targetObject, SerializedProperty.displayName);
+            }
+
+            //typeSelector.OnChange += () =>
+            //{
+            //    SerializedProperty.serializedObject.ApplyModifiedProperties(); // Maybe not necessary
+            //    EditorUtility.SetDirty(SerializedProperty.serializedObject.targetObject);
+            //};
+
             VisualElement.Add(typeSelector);
         }
     }
@@ -27,8 +45,6 @@ namespace Z3.UIBuilder.Editor
         public event Action OnChange;
 
         private struct Null { } // Useful class
-
-        PropertyResolver member;
 
         private Action<object> set;
         private Func<object> get;
@@ -40,64 +56,34 @@ namespace Z3.UIBuilder.Editor
             set => set(value);
         }
 
-        public TypeSelector(SerializedProperty property) : this(property.GetValue<IList>(), property.displayName, true)
+        public TypeSelector(MemberInfo memberInfo, object targetClass, string label = null)
+        {
+             DrawAsProperty(memberInfo, targetClass, label);
+        }
+
+        public TypeSelector(Object target, MemberInfo memberInfo, object targetClass, string label = null) : this(memberInfo, targetClass, label)
         {
             OnChange += () =>
             {
-                property.serializedObject.ApplyModifiedProperties(); // Maybe not necessary
-                EditorUtility.SetDirty(property.serializedObject.targetObject);
+                EditorUtility.SetDirty(target);
             };
-
-            return;
-            member = new PropertyResolver(property);
-            member.GetMemberInfoWithParent(out MemberInfo memberInfo, out object target);
-
-            if (member.IsArray)
-            {
-                Type propertyType = null;
-                if (memberInfo is PropertyInfo propertyInfo)
-                {
-                    propertyType = propertyInfo.PropertyType;
-                }
-                else if (memberInfo is FieldInfo fieldInfo)
-                {
-                    propertyType = fieldInfo.FieldType;
-                }
-                else
-                    throw new NotImplementedException();
-
-                Value ??= Activator.CreateInstance(propertyType);
-                IList list = (IList)Value;
-
-                VisualElement v = DrawAsArray(list, property.displayName);
-                Add(v);
-            }
-            else
-            {
-                VisualElement v = DrawAsProperty(memberInfo, target);
-                Add(v);
-            }
-
-            //RegisterCallback<DetachFromPanelEvent>(e =>
-            //{
-            //    property.serializedObject.ApplyModifiedProperties();
-            //});
         }
 
-        public TypeSelector(MemberInfo memberInfo, object target)
+        public TypeSelector(Object target, IList list, string fieldName = null, bool saveChangesBtn = false) : this(list, fieldName, saveChangesBtn)
         {
-            VisualElement v = DrawAsProperty(memberInfo, target);
-            Add(v);
+            OnChange += () =>
+            {
+                EditorUtility.SetDirty(target);
+            };
         }
 
         public TypeSelector(IList list, string fieldName = null, bool saveChangesBtn = false)
         {
             this.saveChangesBtn = saveChangesBtn;
-            VisualElement v = DrawAsArray(list, fieldName);
-            Add(v);
+            DrawAsArray(list, fieldName);
         }
 
-        private VisualElement DrawAsArray(IList list, string fieldName = null)
+        private void DrawAsArray(IList list, string fieldName = null)
         {
             Type elementType = list.GetType().GenericTypeArguments[0];
             ListViewBuilder<object, LabelView> listView = null;
@@ -136,7 +122,7 @@ namespace Z3.UIBuilder.Editor
                 root.Add(saveChangesBtn);
             }
 
-            return root;
+            Add(root);
 
             void AddItem(Type type)
             {
@@ -184,7 +170,7 @@ namespace Z3.UIBuilder.Editor
             }
         }
 
-        private VisualElement DrawAsProperty(MemberInfo memberInfo, object target)
+        private void DrawAsProperty(MemberInfo memberInfo, object target, string label)
         {
             Type propertyType = null;
             if (memberInfo is PropertyInfo propertyInfo)
@@ -201,13 +187,15 @@ namespace Z3.UIBuilder.Editor
             }
 
             // Get all derived concrete types
-            List<Type> derivedTypes = ReflectionUtils.GetDerivedConcreteTypesInAssembly(propertyType).ToList();
+            List<Type> derivedTypes = ReflectionUtils.GetDeriveredConcreteTypes(propertyType).ToList();
             derivedTypes.Insert(0, typeof(Null));
 
             int index = Value == null ? 0 : derivedTypes.IndexOf(Value.GetType());
 
+            label = !string.IsNullOrEmpty(label) ? label : memberInfo.Name.ToNiceString();
+
             VisualElement itemView = new();
-            PopupField<Type> dropdownField = new(memberInfo.Name.ToNiceString(), derivedTypes, index, t => t?.Name, t => t?.Name);
+            PopupField<Type> dropdownField = new(label, derivedTypes, index, t => t?.Name, t => t?.Name);
 
             dropdownField.RegisterValueChangedCallback(evt =>
             {
@@ -246,7 +234,7 @@ namespace Z3.UIBuilder.Editor
             root.Add(itemView);
 
 
-            return root;
+            Add(root);
         }
     }
 }
