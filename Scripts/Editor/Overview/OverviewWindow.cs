@@ -48,6 +48,7 @@ namespace Z3.UIBuilder.Editor
             // Attribute Processor
             AddRoot(tree, AttributeProcessors, $"Attribute: {nameof(Z3InspectorMemberAttribute).ToBold()} Drawer: {nameof(Z3InspectorMemberAttributeProcessor<Z3InspectorMemberAttribute>).ToBold()}");
             Add<OnInitInspectorPreview>(tree, AttributeProcessors);
+            Add<OnCloseInspectorPreview>(tree, AttributeProcessors);
             Add<ButtonPreview>(tree, AttributeProcessors);
             Add<InfoBoxPreview>(tree, AttributeProcessors);
 
