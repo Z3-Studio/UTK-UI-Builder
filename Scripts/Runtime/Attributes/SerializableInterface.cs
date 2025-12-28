@@ -10,6 +10,7 @@ namespace Z3.UIBuilder.Core
         Type InterfaceType { get; }
     }
 
+    // Note: Is possible to use SerializedReference + CustomDrawerAttribute. Like SerializedInterfaceReferenceAttribute
     [Serializable]
     public class SerializableInterface<TInterface> : ISerializationCallbackReceiver, ISerializableInterface where TInterface : class
     {

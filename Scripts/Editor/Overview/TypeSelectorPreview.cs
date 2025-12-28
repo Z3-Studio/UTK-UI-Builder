@@ -13,7 +13,7 @@ namespace Z3.UIBuilder.Editor
     public class TypeSelectorPreview : VisualElement
     {
         [TypeSelector, SerializeReference]
-        public ITypeSelectorExample fieldExample = new TypeSelectorExampleA();
+        public ITypeSelectorExample fieldExample;
 
 
         [TypeSelector, SerializeReference]

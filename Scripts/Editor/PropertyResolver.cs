@@ -3,6 +3,7 @@ using System.Collections;
 using System.Reflection;
 using UnityEditor;
 using Z3.Utils;
+using Z3.Utils.ExtensionMethods;
 
 namespace Z3.UIBuilder.Editor
 {
@@ -16,6 +17,44 @@ namespace Z3.UIBuilder.Editor
             this.serializedProperty = serializedProperty;
         }
 
+        public static MemberInfo GetMemberInfoFromPropertyPath(Type rootType, string propertyPath) // OLD IMPLEMENTATION -> EditorBuilder.ProcessAttributes
+        {
+            string[] parts = propertyPath.Split('.');
+            Type currentType = rootType;
+            MemberInfo lastMember = null;
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                string part = parts[i];
+
+                // Ignore array indices (Array.data[x])
+                if (part.StartsWith("Array.data[", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                FieldInfo fieldInfo = currentType.GetField(part, ReflectionUtils.AllDeclared);
+                if (fieldInfo != null)
+                {
+                    lastMember = fieldInfo;
+                    currentType = fieldInfo.FieldType;
+                    continue;
+                }
+
+                PropertyInfo propertyInfo = currentType.GetProperty(part, ReflectionUtils.AllDeclared);
+                if (propertyInfo != null)
+                {
+                    lastMember = propertyInfo;
+                    currentType = propertyInfo.PropertyType;
+                    continue;
+                }
+
+                // Parou em um segmento que não existe
+                return null;
+            }
+
+            return lastMember;
+        }
 
         // path1.path2.path3.path4 - 4 is nullable but 3 is not null. find the penultimate 
         public void GetMemberInfoWithParent(out MemberInfo lastMember, out object parentObject)
@@ -40,11 +79,7 @@ namespace Z3.UIBuilder.Editor
 
                 if (memberName.EndsWith(">k__BackingField"))
                 {
-                    int index = memberName.IndexOf("<") + 1;
-                    int endIndex = memberName.Length - index - ">k__BackingField".Length;
-                    memberName = memberName.Substring(index, endIndex);
-
-                    lastMember = obj.GetType().GetProperty(memberName);
+                    lastMember = obj.GetType().GetBackingField(memberName);
                 }
                 else
                 {

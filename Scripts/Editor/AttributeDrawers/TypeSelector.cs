@@ -26,7 +26,11 @@ namespace Z3.UIBuilder.Editor
                 typeSelector = new(SerializedProperty.serializedObject.targetObject, list, SerializedProperty.displayName, true);
             }
             else
-            {
+            { 
+                // TODO: First time when you open inspector is opening a array, but the Member Info is correct. Review EditorBuilder
+                if (SerializedProperty.propertyPath.EndsWith("]"))
+                    return;
+
                 typeSelector = new(SerializedProperty.serializedObject.targetObject, MemberInfo, SerializedProperty.serializedObject.targetObject, SerializedProperty.displayName);
             }
 
@@ -134,6 +138,10 @@ namespace Z3.UIBuilder.Editor
 
             void DrawSelection(object item)
             {
+                // TODO: Handle when is null
+                if (item == null)
+                    return;
+
                 MonoScriptView objectField = new(item);
 
                 inspectElement.Clear();

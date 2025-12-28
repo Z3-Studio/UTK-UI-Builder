@@ -64,6 +64,19 @@ namespace Z3.UIBuilder.Editor
             // TODO: ApplyAttributes is already waiting for attach
             root.ExecuteWhenAttach(() =>
             {
+                Dictionary<string, VisualElement> propertyFieldByPath = new();
+
+                foreach (VisualElement element in root.Query<VisualElement>().ToList())
+                {
+                    if (element is not IBindable bindable)
+                        continue;
+
+                    if (string.IsNullOrEmpty(bindable.bindingPath))
+                        continue;
+
+                    propertyFieldByPath[bindable.bindingPath] = element;
+                }
+
                 SerializedProperty iterator = editor.serializedObject.GetIterator();
                 if (iterator.NextVisible(true))
                 {
@@ -74,18 +87,18 @@ namespace Z3.UIBuilder.Editor
 
                         fieldElement ??= root.Q($"PropertyField:<{propertyPath}>k__BackingField");
 
-                        if (fieldElement == null)
+                        if (!propertyFieldByPath.TryGetValue(propertyPath, out VisualElement fieldElement))
                             continue;
 
-                        MemberInfo memberInfo = editor.target.GetType().GetField(propertyPath, ReflectionUtils.AllDeclared);
+                        PropertyResolver resolver = new(iterator);
+                        resolver.GetMemberInfoWithParent(out MemberInfo memberInfo, out object parent);
 
-                        memberInfo ??= editor.target.GetType().GetProperty(propertyPath, ReflectionUtils.AllDeclared);
                         if (memberInfo == null)
                             continue;
 
                         ApplyAttributes(iterator, fieldElement, memberInfo);
                     }
-                    while (iterator.NextVisible(false));
+                    while (iterator.NextVisible(true));
                 }
             });
         }
