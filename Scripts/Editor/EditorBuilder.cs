@@ -83,9 +83,6 @@ namespace Z3.UIBuilder.Editor
                     do
                     {
                         string propertyPath = iterator.propertyPath;
-                        VisualElement fieldElement = root.Q($"PropertyField:{propertyPath}");
-
-                        fieldElement ??= root.Q($"PropertyField:<{propertyPath}>k__BackingField");
 
                         if (!propertyFieldByPath.TryGetValue(propertyPath, out VisualElement fieldElement))
                             continue;
