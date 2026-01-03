@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
+using System.Reflection;
 using UnityEngine.UIElements;
 using Z3.UIBuilder.Core;
 using Z3.UIBuilder.ExtensionMethods;
@@ -286,7 +286,18 @@ namespace Z3.UIBuilder.Editor
 
         private void OnAddNewElement()
         {
-            Source.Add(default);
+            TItem value;
+            try
+            {
+                // TODO: Review it
+                value = Activator.CreateInstance<TItem>();
+            }
+            catch (Exception)
+            {
+                value = default;
+            }
+
+            Source.Add(value);
             Rebuild(true);
             //listView.viewController.AddItems(1);
         }
