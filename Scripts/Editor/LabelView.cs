@@ -28,7 +28,7 @@ namespace Z3.UIBuilder.Editor
         [UIElement("remove-button")]
         public void OnDelete()
         {
-            listView.DeleteElement(Element);
+            listView.DeleteElement(Element, Index);
         }
 
         public void Bind(IListView listView, object element, int i)

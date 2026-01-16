@@ -96,10 +96,11 @@ namespace Z3.UIBuilder.Editor
             field.name = propertyInfo.Name;
             field.label = propertyInfo.Name.GetNiceString();
 
-            // TODO: Review this try catch
+            // TODO: Review this try catch. I suppose it happen with "null" values and arrays
             try
             {
-                field.value = (T)propertyInfo.GetValue(target);
+                object value = propertyInfo.GetValue(target);
+                field.value = (T)value;
             }
             catch (Exception e)
             {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Z3.UIBuilder.Core;
@@ -106,6 +107,7 @@ namespace Z3.UIBuilder.Editor
 
             listView = new(list, config);
             listView.OnSelectChange += DrawSelection;
+            listView.OnDelete += e => OnChange?.Invoke();
 
             if (list.Count > 0)
             {
@@ -138,14 +140,29 @@ namespace Z3.UIBuilder.Editor
 
             void DrawSelection(object item)
             {
+                inspectElement.Clear();
+
                 // TODO: Handle when is null
                 if (item == null)
                     return;
 
                 MonoScriptView objectField = new(item);
 
-                inspectElement.Clear();
+                //IBaseFieldReader itemView = EditorBuilder.GetElement(declaringObject);
+                //itemView.OnValueChangedAfterBlur += OnChange;
+                //inspectElement.Add(itemView.VisualElement);
+
                 VisualElement itemView = PropertyBuilder.BuildVisualElement(item);
+                itemView.schedule.Execute(() =>
+                {
+                    itemView.RegisterCallback((SerializedPropertyChangeEvent evt) =>
+                    {
+                        OnChange?.Invoke();
+                    });
+
+                }).StartingIn(1000);
+
+                // TODO: Send events of dirty when is 
                 inspectElement.Add(objectField);
                 inspectElement.Add(itemView);
 
@@ -183,9 +200,16 @@ namespace Z3.UIBuilder.Editor
             Type propertyType = null;
             if (memberInfo is PropertyInfo propertyInfo)
             {
-                propertyType = propertyInfo.PropertyType;
-                set = newValue => propertyInfo.SetValue(target, newValue);
-                get = () => propertyInfo.GetValue(target);
+                if (propertyInfo.TryGetBackingField(out FieldInfo backingField))
+                {
+                    set = newValue => backingField.SetValue(target, newValue);
+                    get = () => backingField.GetValue(target);
+                }
+                else
+                {
+                    set = newValue => propertyInfo.SetValue(target, newValue);
+                    get = () => propertyInfo.GetValue(target);
+                }
             }
             else if (memberInfo is FieldInfo fieldInfo)
             {

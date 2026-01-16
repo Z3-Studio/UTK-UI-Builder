@@ -61,7 +61,7 @@ namespace Z3.UIBuilder.Editor
     public interface IListView
     {
         Z3ListViewConfig Config { get; }
-        void DeleteElement(object element);
+        void DeleteElement(object element, int index);
     }
 
     public class ListViewBuilder<TItem> : ListViewBuilder<TItem, LabelView> // Simplified
@@ -89,6 +89,7 @@ namespace Z3.UIBuilder.Editor
         public Action<TView, TItem, int> onBind; // TODO: Remove it
 
         public TItem Selection { get; private set; }
+        public int SelectionIndex { get; private set; }
 
         private IList Source => listView.itemsSource; // IList<TItem>
 
@@ -144,16 +145,28 @@ namespace Z3.UIBuilder.Editor
             int index = listView.itemsSource.IndexOf(item);
             listView.SetSelection(index);
 
-            Selection = item;
+            Selection = item; 
+            SelectionIndex = index;
             OnSelectChange?.Invoke(item);
         }
 
-        private void SetSelection(int index)
+        private void SetSelection(int? index)
         {
-            TItem item = (TItem)listView.itemsSource[index];
-            listView.SetSelection(index);
+            if (!index.HasValue)
+            {
+                Selection = default;
+                SelectionIndex = -1;
+                listView.ClearSelection();
+                OnSelectChange?.Invoke(default);
+                return;
+            }
+
+            int i = index.Value;
+            TItem item = (TItem)listView.itemsSource[i];
+            listView.SetSelection(i);
 
             Selection = item;
+            SelectionIndex = i;
             OnSelectChange?.Invoke(item);
         }
 
@@ -258,28 +271,29 @@ namespace Z3.UIBuilder.Editor
             onBind?.Invoke(view, element, i);
         }
 
-        void IListView.DeleteElement(object element) => DeleteElement((TItem)element);
 
-        public void DeleteElement(TItem element) // Maybe option to remove using index?
+        void IListView.DeleteElement(object element, int index) => DeleteElement((TItem)element, index);
+
+        public void DeleteElement(TItem element, int index) // Maybe option to remove using index?
         {
-            Source.Remove(element);
+            Source.RemoveAt(index);
             OnDelete?.Invoke(element);
 
-            /*if (element.Equals(Selection))
+            if (SelectionIndex == index)
             {
                 if (Source.Count == 0)
                 {
-                    SetSelection(-1);
+                    SetSelection(null);
                 }
-                else if (i >= Source.Count)
+                else if (index >= Source.Count)
                 {
-                    SetSelection(i - 1);
+                    SetSelection(index - 1);
                 }
                 else
                 {
-                    SetSelection(i);
+                    SetSelection(index);
                 }
-            }*/
+            }
 
             Rebuild(true);
         }
