@@ -187,5 +187,128 @@ namespace Z3.UIBuilder.Editor
 
             return null;
         }
+
+        // ------------- GENERATED CODE BY AI --------------------
+        public static object GetTargetObjectOfProperty(SerializedProperty property)
+        {
+            object rootObject = property.serializedObject.targetObject;
+            return GetObjectByPath(rootObject, property.propertyPath);
+        }
+        public static object GetParentObjectOfProperty(SerializedProperty property)
+        {
+            string path = property.propertyPath;
+            int lastDotIndex = path.LastIndexOf('.');
+
+            if (lastDotIndex < 0)
+                return property.serializedObject.targetObject;
+
+            string parentPath = path.Substring(0, lastDotIndex);
+            object rootObject = property.serializedObject.targetObject;
+
+            return GetObjectByPath(rootObject, parentPath);
+        }
+
+        private static object GetObjectByPath(object root, string path)
+        {
+            if (root == null || string.IsNullOrEmpty(path))
+            {
+                return root;
+            }
+
+            string normalizedPath = path.Replace(".Array.data[", "[");
+            string[] elements = normalizedPath.Split('.');
+
+            object currentObject = root;
+
+            for (int i = 0; i < elements.Length; i++)
+            {
+                if (currentObject == null)
+                {
+                    return null;
+                }
+
+                string element = elements[i];
+
+                if (element.Contains("["))
+                {
+                    int bracketIndex = element.IndexOf('[');
+                    string fieldName = element.Substring(0, bracketIndex);
+                    int index = int.Parse(element.Substring(bracketIndex + 1, element.Length - bracketIndex - 2));
+
+                    FieldInfo fieldInfo = GetField(currentObject.GetType(), fieldName);
+                    if (fieldInfo == null)
+                    {
+                        return null;
+                    }
+
+                    IList list = fieldInfo.GetValue(currentObject) as IList;
+                    if (list == null || index < 0 || index >= list.Count)
+                    {
+                        return null;
+                    }
+
+                    currentObject = list[index];
+                }
+                else
+                {
+                    FieldInfo fieldInfo = GetField(currentObject.GetType(), element);
+                    if (fieldInfo != null)
+                    {
+                        currentObject = fieldInfo.GetValue(currentObject);
+                        continue;
+                    }
+
+                    PropertyInfo propertyInfo = GetProperty(currentObject.GetType(), element);
+                    if (propertyInfo != null)
+                    {
+                        currentObject = propertyInfo.GetValue(currentObject);
+                        continue;
+                    }
+
+                    return null;
+                }
+            }
+
+            return currentObject;
+        }
+        private static FieldInfo GetField(Type type, string name)
+        {
+            while (type != null)
+            {
+                FieldInfo field = type.GetField(
+                    name,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+                );
+
+                if (field != null)
+                {
+                    return field;
+                }
+
+                type = type.BaseType;
+            }
+
+            return null;
+        }
+
+        private static PropertyInfo GetProperty(Type type, string name)
+        {
+            while (type != null)
+            {
+                PropertyInfo property = type.GetProperty(
+                    name,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+                );
+
+                if (property != null)
+                {
+                    return property;
+                }
+
+                type = type.BaseType;
+            }
+
+            return null;
+        }
     }
 }

@@ -45,7 +45,7 @@ namespace Z3.UIBuilder
                     {
                         if (!optional)
                         {
-                            Debug.LogError($"Couldn't find the Attribute {attribute.ElementName}");
+                            Debug.LogError($"Couldn't find a VisualElement with name '{attribute.ElementName}'");
                         }
                         continue;
                     }
@@ -66,7 +66,7 @@ namespace Z3.UIBuilder
                     {
                         if (!optional)
                         {
-                            Debug.LogError($"Couldn't find the Attribute {member.Name}");
+                            Debug.LogError($"Couldn't find a VisualElement with name '{member.Name}'");
                         }
                         continue;
                     }
@@ -76,15 +76,29 @@ namespace Z3.UIBuilder
                 switch (member)
                 {
                     case FieldInfo fieldInfo:
-                        if (typeof(VisualElement).IsAssignableFrom(fieldInfo.FieldType) && element.GetType() == fieldInfo.FieldType)
+                        if (fieldInfo.FieldType.IsAssignableFrom(element.GetType()))
                         {
                             fieldInfo.SetValue(target, element);
+                        }
+                        else
+                        {
+                            Debug.LogError($"Couldn't bind a VisualElement name of '{member.Name}'.\nField Type {fieldInfo.FieldType}, expected type {element.GetType()}");
                         }
                         break;
                     case MethodInfo methodInfo:
                         if (element is Button button)
                         {
-                            button.clicked += () => methodInfo.Invoke(target, null);
+                            button.clicked += () =>
+                            {
+                                try
+                                {
+                                    methodInfo.Invoke(target, null);
+                                }
+                                catch (System.Exception e)
+                                {
+                                    Debug.LogError(e);
+                                }
+                            };
                         }
                         break;
                 }

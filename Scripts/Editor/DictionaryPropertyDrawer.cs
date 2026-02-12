@@ -12,7 +12,7 @@ namespace Z3.UIBuilder.Editor
     /// <summary>
     /// Used to display <see cref="SerializableDictionary{TKey, TValue}"/>
     /// </summary>
-    [CustomPropertyDrawer(typeof(IDictionary), true)]
+    [CustomPropertyDrawer(typeof(SerializableDictionary<,>), true)]
     public class DictionaryPropertyDrawer : Z3PropertyDrawer<IDictionary>
     {
         [UIElement] private Label header;

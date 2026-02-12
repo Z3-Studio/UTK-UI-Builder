@@ -51,6 +51,28 @@ namespace Z3.UIBuilder.Editor.ExtensionMethods
             }
         }
 
+        /// <summary>
+        /// When using SerializedPropertyChangeEvent, after attach the panel, the default implemantation will invoke after draw each Property.
+        /// Using this method, it prevents unnecessary callbacks
+        /// </summary>
+        public static void RegisterChanges(this PropertyField propertyField, object target, Action callback)
+        {
+            string lastJson = EditorJsonUtility.ToJson(target);
+
+            propertyField.RegisterCallback<SerializedPropertyChangeEvent>(OnPropertyChanged);
+
+            void OnPropertyChanged(SerializedPropertyChangeEvent evt)
+            {
+                string currentJson = EditorJsonUtility.ToJson(target);
+
+                if (currentJson == lastJson)
+                    return;
+
+                lastJson = currentJson;
+                callback();
+            }
+        }
+
         public static void RegisterChanges<TField, TValue>(this TField visualField, FieldInfo field, object target) where TField : BaseField<TValue>
         {
             TValue Get() => (TValue)field.GetValue(target);

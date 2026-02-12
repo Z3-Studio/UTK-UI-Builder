@@ -32,14 +32,10 @@ namespace Z3.UIBuilder.Editor
                 if (SerializedProperty.propertyPath.EndsWith("]"))
                     return;
 
-                typeSelector = new(SerializedProperty.serializedObject.targetObject, MemberInfo, SerializedProperty.serializedObject.targetObject, SerializedProperty.displayName);
+                // NOTE: object value is null, is this correct?
+                object declaringInstance = PropertyResolver.GetParentObjectOfProperty(SerializedProperty); 
+                typeSelector = new(SerializedProperty.serializedObject.targetObject, MemberInfo, declaringInstance, SerializedProperty.displayName);
             }
-
-            //typeSelector.OnChange += () =>
-            //{
-            //    SerializedProperty.serializedObject.ApplyModifiedProperties(); // Maybe not necessary
-            //    EditorUtility.SetDirty(SerializedProperty.serializedObject.targetObject);
-            //};
 
             VisualElement.Add(typeSelector);
         }
@@ -148,6 +144,7 @@ namespace Z3.UIBuilder.Editor
 
                 MonoScriptView objectField = new(item);
 
+                // NOTE: If use PropertyAttribute, is possible to track changes by using UIBuilderEditorExtensions.RegisterChanges / propertyField.RegisterCallback<SerializedPropertyChangeEvent>
                 //IBaseFieldReader itemView = EditorBuilder.GetElement(declaringObject);
                 //itemView.OnValueChangedAfterBlur += OnChange;
                 //inspectElement.Add(itemView.VisualElement);
@@ -197,7 +194,7 @@ namespace Z3.UIBuilder.Editor
 
         private void DrawAsProperty(MemberInfo memberInfo, object target, string label)
         {
-            Type propertyType = null;
+            Type propertyType = memberInfo.DeclaringType; // null?
             if (memberInfo is PropertyInfo propertyInfo)
             {
                 if (propertyInfo.TryGetBackingField(out FieldInfo backingField))
