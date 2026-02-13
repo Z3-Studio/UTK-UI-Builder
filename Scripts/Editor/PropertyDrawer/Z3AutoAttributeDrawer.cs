@@ -10,7 +10,7 @@ namespace Z3.UIBuilder.Editor
     /// <summary>
     /// If the field there is no <see cref="Z3PropertyDrawer{TProperty}"/>, this class will be called to draw all <see cref="Z3AttributeDrawer{TAttribute}"/>
     /// </summary>
-    [CustomPropertyDrawer(typeof(Z3VisualElementAttribute), true)]
+    [CustomPropertyDrawer(typeof(Z3VisualElementAttribute), true)] // TODO: Maybe this class is not more necessary?
     public sealed class Z3AutoAttributeDrawer : Z3Drawer
     {
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
