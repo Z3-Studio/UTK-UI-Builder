@@ -54,16 +54,22 @@ namespace Z3.UIBuilder.Editor
             GenerateElementsAndAttributes(root, editor.target);
 
             // EXPERIMENTAL: Create bug of double title in game design window, but TypeSelect works
-            ProcessAttributes(editor, root);
+            ProcessAttributes(editor.serializedObject, root);
 
             return root;
         }
 
-        private static void ProcessAttributes(Editor editor, VisualElement root)
+        public static void ProcessAttributes(SerializedObject serializedObject, VisualElement root)
+        {
+            ProcessAttributes(serializedObject.GetIterator(), root);
+        }
+
+        public static void ProcessAttributes(SerializedProperty iterator, VisualElement root)
         {
             // TODO: ApplyAttributes is already waiting for attach
-            root.ExecuteWhenAttach(() =>
+            root.WaitForGeometryInitialization(() =>
             {
+                root.MarkDirtyRepaint();
                 Dictionary<string, VisualElement> propertyFieldByPath = new();
 
                 foreach (VisualElement element in root.Query<VisualElement>().ToList())
@@ -77,7 +83,6 @@ namespace Z3.UIBuilder.Editor
                     propertyFieldByPath[bindable.bindingPath] = element;
                 }
 
-                SerializedProperty iterator = editor.serializedObject.GetIterator();
                 if (iterator.NextVisible(true))
                 {
                     do
@@ -93,7 +98,11 @@ namespace Z3.UIBuilder.Editor
                         if (memberInfo == null)
                             continue;
 
-                        ApplyAttributes(iterator, fieldElement, memberInfo);
+                        VisualElement finalElement = GetBindable<PropertyField>(fieldElement, memberInfo.Name)
+                            ?? fieldElement;
+
+                        ApplyAttributes(iterator, finalElement, memberInfo);
+                        propertyFieldByPath.Remove(propertyPath);
                     }
                     while (iterator.NextVisible(true));
                 }
@@ -256,5 +265,32 @@ namespace Z3.UIBuilder.Editor
         }
 
         public static IBaseFieldReader GetElement(Type fieldType) => BaseFieldBuilder.CreateBaseField(fieldType);
+
+        #region TEMP HELPERS
+        private static T GetBindable<T>(VisualElement element, string name) where T : class, IBindable
+        {
+            VisualElement current = element;
+            T bestMatch = null;
+
+            while (current != null)
+            {
+                if (current is T bindable)
+                {
+                    if (bindable.bindingPath == name)
+                    {
+                        bestMatch = bindable;
+                    }
+                    else if (bestMatch != null)
+                    {
+                        return bestMatch;
+                    }
+                }
+
+                current = current.parent;
+            }
+
+            return bestMatch;
+        }
+        #endregion
     }
 }

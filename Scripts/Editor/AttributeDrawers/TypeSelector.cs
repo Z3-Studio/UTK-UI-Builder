@@ -18,7 +18,7 @@ namespace Z3.UIBuilder.Editor
     {
         protected override void Draw()
         {
-            VisualElement.Clear();
+            ClearVisualElement();
             object value = SerializedProperty.GetValue();
 
             TypeSelector typeSelector;

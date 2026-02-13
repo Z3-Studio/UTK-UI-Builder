@@ -25,10 +25,25 @@ namespace Z3.UIBuilder.Editor
 
         void IZ3AttributeDrawer.Init(SerializedProperty serializedProperty, VisualElement visualElement, MemberInfo memberInfo, Z3VisualElementAttribute attribute)
         {
-            SerializedProperty = serializedProperty;
             VisualElement = visualElement;
             MemberInfo = memberInfo;
             Attribute = (TAttribute)attribute;
+
+            // Copying to avoid being ephemeral in iteration
+            SerializedProperty = serializedProperty.serializedObject.FindProperty(serializedProperty.propertyPath);
+        }
+
+        protected void ClearVisualElement()
+        {
+            VisualElement root = VisualElement;
+            VisualElement = new()
+            {
+                name = $"PropertyField:{MemberInfo.Name}"
+            };
+
+            int index = root.parent.IndexOf(root);
+            root.parent.Insert(index, VisualElement);
+            root.RemoveFromHierarchy();
         }
 
         void IZ3AttributeDrawer.Draw()
@@ -43,6 +58,5 @@ namespace Z3.UIBuilder.Editor
 
         // Note: Maybe create AttachDraw
         protected virtual void Draw() { }
-
     }
 }

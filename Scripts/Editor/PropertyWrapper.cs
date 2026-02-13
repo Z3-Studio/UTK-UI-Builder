@@ -12,6 +12,9 @@ namespace Z3.UIBuilder.Editor
 
         public static PropertyField CreateAsPropertyField(object instance, MemberInfo memberInfo)
         {
+            if (instance == null)
+                return new() { name = $"PropertyWrapper:{null}" };
+
             // Instantiate Wrapper
             PropertyWrapper genericProperty = CreateInstance<PropertyWrapper>();
             genericProperty.property = instance;
@@ -21,11 +24,20 @@ namespace Z3.UIBuilder.Editor
             SerializedProperty serializedProperty = serializedObject.FindProperty(nameof(property));
 
             PropertyField propertyField = serializedProperty.ToPropertyField();
-            propertyField.Bind(serializedObject);
 
-            if (memberInfo != null)
+            // Note: Bind(serializedObject) is also valid?
+            propertyField.BindProperty(serializedObject);
+            propertyField.name = $"PropertyWrapper:{instance.GetType().Name}";
+
+            if (memberInfo != null) // TODO: Remove this way
             {
                 EditorBuilder.ApplyAttributes(serializedProperty, propertyField, memberInfo);
+            }
+            else
+            {
+                EditorBuilder.ProcessAttributes(serializedProperty, propertyField);
+                // TODO: Remove GenerateElements from PropertyBuilder.cs
+                //EditorBuilder.GenerateElementsAndAttributes(propertyField, instance);
             }
 
             return propertyField;
