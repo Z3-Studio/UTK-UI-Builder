@@ -14,10 +14,16 @@ using Object = UnityEngine.Object;
 
 namespace Z3.UIBuilder.Editor
 {
+    // BUGS: 
+    // 1. Open UI Builder overview, after select Type Selector, maybe the first draw is not working
+    // 2. Create SubObject type D, sometimes the dropdown of the SubObject will not show, you can change to C and D again. Maybe is necessary to retry a few times to show D
+    // Note that when this happens, the child object is drawn as a PropertyField instead of a TypeSelector.
+    // Part of the problem is inside of EditorBuilder.ProcessAttributes -> WaitForGeometryInitialization
     public class TypeSelectorDrawer : Z3AttributeDrawer<TypeSelectorAttribute>
     {
         protected override void Draw()
         {
+            PropertyField p = null;
             ClearVisualElement();
             object value = SerializedProperty.GetValue();
 
@@ -57,32 +63,35 @@ namespace Z3.UIBuilder.Editor
             set => set(value);
         }
 
-        public TypeSelector(MemberInfo memberInfo, object targetClass, string label = null)
+        public TypeSelector(Object target, MemberInfo memberInfo, object targetClass, string label = null) 
         {
-             DrawAsProperty(memberInfo, targetClass, label);
-        }
-
-        public TypeSelector(Object target, MemberInfo memberInfo, object targetClass, string label = null) : this(memberInfo, targetClass, label)
-        {
+            DrawAsProperty(memberInfo, targetClass, label);
             OnChange += () =>
             {
                 EditorUtility.SetDirty(target);
             };
         }
 
-        public TypeSelector(Object target, IList list, string fieldName = null, bool saveChangesBtn = false) : this(list, fieldName, saveChangesBtn)
-        {
-            OnChange += () =>
-            {
-                EditorUtility.SetDirty(target);
-            };
-        }
-
-        public TypeSelector(IList list, string fieldName = null, bool saveChangesBtn = false)
+        public TypeSelector(Object target, IList list, string fieldName = null, bool saveChangesBtn = false)
         {
             this.saveChangesBtn = saveChangesBtn;
             DrawAsArray(list, fieldName);
+            OnChange += () =>
+            {
+                EditorUtility.SetDirty(target);
+            };
         }
+
+        //public TypeSelector(MemberInfo memberInfo, object targetClass, string label = null)
+        //{
+        //    DrawAsProperty(memberInfo, targetClass, label);
+        //}
+
+        //public TypeSelector(IList list, string fieldName = null, bool saveChangesBtn = false)
+        //{
+        //    this.saveChangesBtn = saveChangesBtn;
+        //    DrawAsArray(list, fieldName);
+        //}
 
         private void DrawAsArray(IList list, string fieldName = null)
         {
@@ -97,7 +106,7 @@ namespace Z3.UIBuilder.Editor
                 SelectionPopup<Type>.Open(elementType.Name, derivedTypes, AddItem, t => t.Name.ToNiceString());
             };
 
-            VisualElement inspectElement = new();
+            VisualElement inspectElement = new() { name = "TypeSelector Inspector" }; // Foldout
             inspectElement.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f);
             inspectElement.style.SetPadding(4);
 
@@ -162,33 +171,6 @@ namespace Z3.UIBuilder.Editor
                 // TODO: Send events of dirty when is 
                 inspectElement.Add(objectField);
                 inspectElement.Add(itemView);
-
-                // Maybe use property field instead of bindable
-                //foreach (VisualElement element in itemView.Query<VisualElement>().Where(v => v is IBindable).ToList())
-                //{
-                //    if (element is PropertyField propertyField)
-                //    {
-                //        propertyField.RegisterCallback<AttachToPanelEvent>(e =>
-                //        {
-                //            propertyField.schedule.Execute(() =>
-                //            {
-                //                List<BindableElement> innerBindables = propertyField.Query<BindableElement>().ToList();
-
-                //                foreach (BindableElement bindableElement in innerBindables)
-                //                {
-                //                    bindableElement.RegisterCallback<BlurEvent>(changeEvent =>
-                //                    {
-                //                        OnChange?.Invoke();
-                //                    });
-                //                }
-                //            }
-
-                //            ).StartingIn(100);
-
-                //        });
-                //    }
-                //}
-
             }
         }
 
@@ -222,8 +204,8 @@ namespace Z3.UIBuilder.Editor
             int index = Value == null ? 0 : derivedTypes.IndexOf(Value.GetType());
 
             label = !string.IsNullOrEmpty(label) ? label : memberInfo.Name.ToNiceString();
-
-            VisualElement itemView = new();
+            VisualElement inspectElement = new() { name = "TypeSelector Inspector" };
+            inspectElement.style.SetPadding(8);
             PopupField<Type> dropdownField = new(label, derivedTypes, index, t => t?.Name, t => t?.Name);
 
             dropdownField.RegisterValueChangedCallback(evt =>
@@ -250,17 +232,17 @@ namespace Z3.UIBuilder.Editor
                     OnChange?.Invoke();
                 }
 
-                itemView.Clear();
+                inspectElement.Clear();
                 VisualElement field = PropertyBuilder.BuildVisualElement(Value);
-                itemView.Add(field);
+                inspectElement.Add(field);
             });
 
             VisualElement field = PropertyBuilder.BuildVisualElement(Value);
-            itemView.Add(field);
+            inspectElement.Add(field);
 
             VisualElement root = new();
             root.Add(dropdownField);
-            root.Add(itemView);
+            root.Add(inspectElement);
 
 
             Add(root);

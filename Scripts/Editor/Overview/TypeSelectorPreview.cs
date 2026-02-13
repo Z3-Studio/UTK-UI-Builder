@@ -1,16 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Z3.UIBuilder.Core;
-using Z3.Utils.ExtensionMethods;
 
 namespace Z3.UIBuilder.Editor
 {
     /// <summary>
     /// Implementation: <see cref="TypeSelectorDrawer"/>
     /// </summary>
-    public class TypeSelectorPreview : VisualElement
+    public class TypeSelectorPreview
     {
         [TypeSelector, SerializeReference]
         public ITypeSelectorExample fieldExample;
@@ -23,27 +20,6 @@ namespace Z3.UIBuilder.Editor
             new TypeSelectorExampleB(),
             new TypeSelectorExampleC(),
         };
-
-        [SerializeReference]
-        public ITypeSelectorExample fieldWithoutAttribute;
-
-        [SerializeReference]
-        public List<ITypeSelectorExample> listWithoutAttribute = new()
-        {
-            new TypeSelectorExampleA(),
-            new TypeSelectorExampleB(),
-            new TypeSelectorExampleC(),
-        };
-
-        public TypeSelectorPreview()
-        {
-            FieldInfo fieldInfo = GetType().GetField(nameof(fieldWithoutAttribute));
-            TypeSelector fieldSelector = new(fieldInfo, this);
-            Add(fieldSelector);
-
-            TypeSelector listSelector = new(listWithoutAttribute, nameof(listWithoutAttribute).ToNiceString());
-            Add(listSelector);
-        }
     }
 
     public interface ITypeSelectorExample { }
@@ -61,5 +37,20 @@ namespace Z3.UIBuilder.Editor
     public class TypeSelectorExampleC : ITypeSelectorExample
     {
         [SerializeField] private GameObject objectField;
+    }
+
+    public class TypeSelectorExampleD : ITypeSelectorExample // TODO: Fix this case
+    {
+        [TypeSelector, SerializeReference]
+        public ITypeSelectorExample fieldExample;
+
+
+        [TypeSelector, SerializeReference]
+        public List<ITypeSelectorExample> listExample = new()
+        {
+            new TypeSelectorExampleA(),
+            new TypeSelectorExampleB(),
+            new TypeSelectorExampleC(),
+        };
     }
 }

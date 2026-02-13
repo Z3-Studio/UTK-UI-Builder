@@ -29,16 +29,16 @@ namespace Z3.UIBuilder.Editor
             propertyField.BindProperty(serializedObject);
             propertyField.name = $"PropertyWrapper:{instance.GetType().Name}";
 
-            if (memberInfo != null) // TODO: Remove this way
-            {
-                EditorBuilder.ApplyAttributes(serializedProperty, propertyField, memberInfo);
-            }
-            else
-            {
+            //if (memberInfo != null) // TODO: Remove this way
+            //{
+            //    EditorBuilder.ApplyAttributes(serializedProperty, propertyField, memberInfo);
+            //}
+            //else
+            //{
                 EditorBuilder.ProcessAttributes(serializedProperty, propertyField);
                 // TODO: Remove GenerateElements from PropertyBuilder.cs
                 //EditorBuilder.GenerateElementsAndAttributes(propertyField, instance);
-            }
+            //}
 
             return propertyField;
         }

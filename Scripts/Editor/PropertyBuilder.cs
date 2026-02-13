@@ -96,7 +96,7 @@ namespace Z3.UIBuilder.Editor
                 container.style.marginLeft = 0f;
                 container.style.display = DisplayStyle.Flex;
 
-                root.Add(container);
+                root.Add(container); // TODO: Sometimes it get error. HOW: Open UI Builder preview, and use arrows to navigate many times
                 root.Remove(propertyField);
 
                 EditorBuilder.GenerateElementsAndAttributes(root, target);

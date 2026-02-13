@@ -66,10 +66,27 @@ namespace Z3.UIBuilder.Editor
 
         public static void ProcessAttributes(SerializedProperty iterator, VisualElement root)
         {
-            // TODO: ApplyAttributes is already waiting for attach
-            root.WaitForGeometryInitialization(() =>
+            PropertyField p = root as PropertyField;
+            EventCallback<SerializedPropertyChangeEvent> callback = null;
+
+            callback = (SerializedPropertyChangeEvent evt) =>
             {
-                root.MarkDirtyRepaint();
+                Iterate();
+            };
+
+            if (p != null)
+            {
+                // TODO: Improve it, This method is more effective than Geometry, but is not perfect. Check TypeSelector annotations
+                p.RegisterCallback(callback);
+            }
+            else
+            {
+                root.WaitForGeometryInitialization(Iterate);
+            }
+
+            void Iterate()
+            {
+                p?.UnregisterCallback(callback);
                 Dictionary<string, VisualElement> propertyFieldByPath = new();
 
                 foreach (VisualElement element in root.Query<VisualElement>().ToList())
@@ -98,15 +115,24 @@ namespace Z3.UIBuilder.Editor
                         if (memberInfo == null)
                             continue;
 
-                        VisualElement finalElement = GetBindable<PropertyField>(fieldElement, memberInfo.Name)
+                        VisualElement finalElement = GetBindable<PropertyField>(fieldElement, propertyPath)
                             ?? fieldElement;
+
+                        // Force reprocess drawer?
+                        //if (finalElement is PropertyField p)
+                        //{
+                        //    ExtensionMethods.UIBuilderEditorExtensions.RegisterChanges(p, iterator.serializedObject.targetObject, () =>
+                        //    {
+                        //        ProcessAttributes(iterator, root);
+                        //    });
+                        //}
 
                         ApplyAttributes(iterator, finalElement, memberInfo);
                         propertyFieldByPath.Remove(propertyPath);
                     }
                     while (iterator.NextVisible(true));
                 }
-            });
+            }
         }
 
         public static void ApplyAttributes(SerializedProperty serializedProperty, VisualElement propertyField, MemberInfo memberInfo)
