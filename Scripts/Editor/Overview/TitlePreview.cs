@@ -9,6 +9,9 @@ namespace Z3.UIBuilder.Editor
     public class TitlePreview
     {
         [Title("Title Example")]
-        public GameObject myObject;
+        public GameObject field;
+
+        [Title("Title Example")]
+        [field: SerializeField] public GameObject Property { get; set; }
     }
 }

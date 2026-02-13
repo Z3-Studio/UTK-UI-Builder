@@ -249,6 +249,9 @@ namespace Z3.UIBuilder.TreeViewer
 
         private void Select(IEnumerable<object> obj)
         {
+            if (obj.Count() == 0) // TEMP
+                return;
+
             TreeViewContent<TContent> content = obj.ToList()[0] as TreeViewContent<TContent>;
             SelectedContent = content;
             OnChangeSelection?.Invoke(content);

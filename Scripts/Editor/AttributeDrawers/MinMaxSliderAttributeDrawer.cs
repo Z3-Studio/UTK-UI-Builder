@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 using Z3.UIBuilder.Core;
-using Z3.UIBuilder.Editor.ExtensionMethods;
 using Z3.Utils.ExtensionMethods;
 
 namespace Z3.UIBuilder.Editor
@@ -11,48 +12,104 @@ namespace Z3.UIBuilder.Editor
         protected override bool CanDraw()
         {
             // Check if is Vector2 or Vector2Int
-            return MemberInfo.IsAssignableFrom(typeof(Vector2));
+            return MemberInfo.IsAssignableFromAny(typeof(Vector2), typeof(Vector2Int));
         }
 
         protected override void Draw()
         {
-            // TODO: The first visualization is not showing
-            Vector2Field vector2Field = VisualElement.Q<Vector2Field>();
+            ClearVisualElement();
 
-            if (vector2Field != null)
+            if (MemberInfo.IsAssignableFrom(typeof(Vector2)))
             {
-                Vector2 value = GetResolvedValue<Vector2>();
-                ReplaceField(vector2Field, value.x, value.y);
+                ReplaceField();
                 return;
             }
             
-            Vector2IntField vector2IntField = VisualElement.Q<Vector2IntField>();
-            if (vector2IntField != null)
+            if (MemberInfo.IsAssignableFrom(typeof(Vector2Int)))
             {
-                // TODO: It doesn't serialize
-                //ReplaceField(vector2IntField, vector2IntField.value.x, vector2IntField.value.y);
+                ReplaceFieldVector2Int();
             }
         }
 
-        private void ReplaceField<TValueType>(BaseField<TValueType> visualElement, float min, float max)
+        private void ReplaceField()
         {
-            MinMaxSlider slider = new MinMaxSlider(visualElement.label, min, max, Attribute.Min, Attribute.Max);
+            MinMaxSlider slider = new MinMaxSlider(label: SerializedProperty.displayName, minLimit: Attribute.Min, maxLimit: Attribute.Max);
             slider.AddToClassList("unity-base-field__aligned"); // Set right space
-            slider.TransferBinding(visualElement, SerializedProperty);
+            slider.BindProperty(SerializedProperty);
+            VisualElement.Add(slider);
 
-            visualElement.parent.Add(slider);
-            visualElement.RemoveFromHierarchy();
+            AddFields(slider);
+        }
 
+        private void ReplaceFieldVector2Int()
+        {
+            Vector2Int currentValue = SerializedProperty.vector2IntValue;
+
+            MinMaxSlider slider = new MinMaxSlider(
+                SerializedProperty.displayName,
+                Attribute.Min,
+                Attribute.Max
+            );
+
+            slider.AddToClassList("unity-base-field__aligned");
+            slider.value = new Vector2(currentValue.x, currentValue.y);
+
+            // TODO: Bind
+            slider.RegisterValueChangedCallback(evt =>
+            {
+                Vector2 previousValue = evt.previousValue;
+                Vector2 newValue = evt.newValue;
+
+                bool minChanged = !Mathf.Approximately(newValue.x, previousValue.x);
+                bool maxChanged = !Mathf.Approximately(newValue.y, previousValue.y);
+
+                int minValue;
+                int maxValue;
+
+                if (minChanged)
+                {
+                    minValue = newValue.x < previousValue.x
+                        ? Mathf.FloorToInt(newValue.x)
+                        : Mathf.CeilToInt(newValue.x);
+
+                    maxValue = Mathf.RoundToInt(newValue.y);
+                }
+                else
+                {
+                    minValue = Mathf.RoundToInt(newValue.x);
+
+                    maxValue = newValue.y < previousValue.y
+                        ? Mathf.FloorToInt(newValue.y)
+                        : Mathf.CeilToInt(newValue.y);
+                }
+
+                Vector2Int result = new(minValue, maxValue);
+
+                // TODO: Review it
+                SerializedProperty.serializedObject.Update();
+                SerializedProperty.vector2IntValue = result;
+                SerializedProperty.serializedObject.ApplyModifiedProperties();
+
+                if (result != newValue)
+                    slider.value = newValue;
+            });
+
+            VisualElement.Add(slider);
+            AddFields(slider);
+        }
+
+        private void AddFields(MinMaxSlider slider)
+        {
             if (!Attribute.ShowValue)
                 return;
 
             // TODO: Improve style
-            FloatField minText = new FloatField();            
-            minText.value = min;
+            FloatField minText = new FloatField();
+            minText.value = Attribute.Min;
             minText.style.width = 50; // unity-base-slider__text-field
 
             FloatField maxText = new FloatField();
-            maxText.value = max;
+            maxText.value = Attribute.Max;
             maxText.style.width = 50;
 
             slider.Insert(1, minText);

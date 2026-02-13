@@ -24,13 +24,24 @@ namespace Z3.UIBuilder.Editor
             new TypeSelectorExampleC(),
         };
 
+        [SerializeReference]
+        public ITypeSelectorExample fieldWithoutAttribute;
+
+        [SerializeReference]
+        public List<ITypeSelectorExample> listWithoutAttribute = new()
+        {
+            new TypeSelectorExampleA(),
+            new TypeSelectorExampleB(),
+            new TypeSelectorExampleC(),
+        };
+
         public TypeSelectorPreview()
         {
-            FieldInfo fieldInfo = GetType().GetField(nameof(fieldExample));
+            FieldInfo fieldInfo = GetType().GetField(nameof(fieldWithoutAttribute));
             TypeSelector fieldSelector = new(fieldInfo, this);
             Add(fieldSelector);
 
-            TypeSelector listSelector = new(listExample, nameof(listExample).ToNiceString());
+            TypeSelector listSelector = new(listWithoutAttribute, nameof(listWithoutAttribute).ToNiceString());
             Add(listSelector);
         }
     }

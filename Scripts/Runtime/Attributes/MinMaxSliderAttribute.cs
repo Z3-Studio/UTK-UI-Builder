@@ -6,10 +6,11 @@
         public float Max { get; }
         public bool ShowValue { get; } = true;
 
-        public MinMaxSliderAttribute(float min, float max)
+        public MinMaxSliderAttribute(float min, float max, bool showValue = true)
         {
             Min = min;
             Max = max;
+            ShowValue = showValue;
         }
     }
 }
