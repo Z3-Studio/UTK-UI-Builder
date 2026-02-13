@@ -11,7 +11,7 @@ namespace Z3.UIBuilder.Editor
         [Title("Title Example")]
         public GameObject field;
 
-        [Title("Title Example")]
+        //[Title("Title Example")] // TODO: Support to Properties
         [field: SerializeField] public GameObject Property { get; set; }
     }
 }
