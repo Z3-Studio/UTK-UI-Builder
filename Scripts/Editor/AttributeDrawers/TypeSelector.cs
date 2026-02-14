@@ -24,13 +24,15 @@ namespace Z3.UIBuilder.Editor
         protected override void Draw()
         {
             PropertyField p = null;
-            ClearVisualElement();
             object value = SerializedProperty.GetValue();
 
             TypeSelector typeSelector;
             if (value is IList list)
             {
                 typeSelector = new(SerializedProperty.serializedObject.targetObject, list, SerializedProperty.displayName, true);
+
+                int index = VisualElement.parent.IndexOf(VisualElement);
+                VisualElement.parent.Insert(index, typeSelector);
             }
             else
             { 
@@ -41,9 +43,11 @@ namespace Z3.UIBuilder.Editor
                 // NOTE: object value is null, is this correct?
                 object declaringInstance = PropertyResolver.GetParentObjectOfProperty(SerializedProperty); 
                 typeSelector = new(SerializedProperty.serializedObject.targetObject, MemberInfo, declaringInstance, SerializedProperty.displayName);
+
+                int index = VisualElement.parent.IndexOf(VisualElement);
+                VisualElement.parent.Insert(index, typeSelector);
             }
 
-            VisualElement.Add(typeSelector);
         }
     }
 
@@ -65,6 +69,7 @@ namespace Z3.UIBuilder.Editor
 
         public TypeSelector(Object target, MemberInfo memberInfo, object targetClass, string label = null) 
         {
+            name = label;
             DrawAsProperty(memberInfo, targetClass, label);
             OnChange += () =>
             {
@@ -74,6 +79,7 @@ namespace Z3.UIBuilder.Editor
 
         public TypeSelector(Object target, IList list, string fieldName = null, bool saveChangesBtn = false)
         {
+            name = fieldName;
             this.saveChangesBtn = saveChangesBtn;
             DrawAsArray(list, fieldName);
             OnChange += () =>
@@ -106,22 +112,22 @@ namespace Z3.UIBuilder.Editor
                 SelectionPopup<Type>.Open(elementType.Name, derivedTypes, AddItem, t => t.Name.ToNiceString());
             };
 
-            VisualElement inspectElement = new() { name = "TypeSelector Inspector" }; // Foldout
-            inspectElement.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f);
-            inspectElement.style.SetPadding(4);
+            //VisualElement inspectElement = new() { name = "TypeSelector Inspector" }; // Foldout
+            //inspectElement.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f);
+            //inspectElement.style.SetPadding(4);
 
             listView = new(list, config);
-            listView.OnSelectChange += DrawSelection;
+            //listView.OnSelectChange += DrawSelection;
             listView.OnDelete += e => OnChange?.Invoke();
 
-            if (list.Count > 0)
-            {
-                DrawSelection(list[0]);
-            }
+            //if (list.Count > 0)
+            //{
+            //    DrawSelection(list[0]);
+            //}
 
             VisualElement root = new();
             root.Add(listView);
-            root.Add(inspectElement); // TODO: Add to Foldout. ListView.Foldout.Add
+            //root.Add(inspectElement); // TODO: Add to Foldout. ListView.Foldout.Add
 
             if (saveChangesBtn) // TEMP
             {
@@ -143,35 +149,35 @@ namespace Z3.UIBuilder.Editor
                 OnChange?.Invoke();
             }
 
-            void DrawSelection(object item)
-            {
-                inspectElement.Clear();
+            //void DrawSelection(object item)
+            //{
+            //    inspectElement.Clear();
 
-                // TODO: Handle when is null
-                if (item == null)
-                    return;
+            //    // TODO: Handle when is null
+            //    if (item == null)
+            //        return;
 
-                MonoScriptView objectField = new(item);
+            //    MonoScriptView objectField = new(item);
 
-                // NOTE: If use PropertyAttribute, is possible to track changes by using UIBuilderEditorExtensions.RegisterChanges / propertyField.RegisterCallback<SerializedPropertyChangeEvent>
-                //IBaseFieldReader itemView = EditorBuilder.GetElement(declaringObject);
-                //itemView.OnValueChangedAfterBlur += OnChange;
-                //inspectElement.Add(itemView.VisualElement);
+            //    // NOTE: If use PropertyAttribute, is possible to track changes by using UIBuilderEditorExtensions.RegisterChanges / propertyField.RegisterCallback<SerializedPropertyChangeEvent>
+            //    //IBaseFieldReader itemView = EditorBuilder.GetElement(declaringObject);
+            //    //itemView.OnValueChangedAfterBlur += OnChange;
+            //    //inspectElement.Add(itemView.VisualElement);
 
-                VisualElement itemView = PropertyBuilder.BuildVisualElement(item);
-                itemView.schedule.Execute(() =>
-                {
-                    itemView.RegisterCallback((SerializedPropertyChangeEvent evt) =>
-                    {
-                        OnChange?.Invoke();
-                    });
+            //    VisualElement itemView = PropertyBuilder.BuildVisualElement(item);
+            //    itemView.schedule.Execute(() =>
+            //    {
+            //        itemView.RegisterCallback((SerializedPropertyChangeEvent evt) =>
+            //        {
+            //            OnChange?.Invoke();
+            //        });
 
-                }).StartingIn(1000);
+            //    }).StartingIn(1000);
 
-                // TODO: Send events of dirty when is 
-                inspectElement.Add(objectField);
-                inspectElement.Add(itemView);
-            }
+            //    // TODO: Send events of dirty when is 
+            //    inspectElement.Add(objectField);
+            //    inspectElement.Add(itemView);
+            //}
         }
 
         private void DrawAsProperty(MemberInfo memberInfo, object target, string label)
@@ -204,8 +210,8 @@ namespace Z3.UIBuilder.Editor
             int index = Value == null ? 0 : derivedTypes.IndexOf(Value.GetType());
 
             label = !string.IsNullOrEmpty(label) ? label : memberInfo.Name.ToNiceString();
-            VisualElement inspectElement = new() { name = "TypeSelector Inspector" };
-            inspectElement.style.SetPadding(8);
+            //VisualElement inspectElement = new() { name = "TypeSelector Inspector" };
+            //inspectElement.style.SetPadding(8);
             PopupField<Type> dropdownField = new(label, derivedTypes, index, t => t?.Name, t => t?.Name);
 
             dropdownField.RegisterValueChangedCallback(evt =>
@@ -232,17 +238,17 @@ namespace Z3.UIBuilder.Editor
                     OnChange?.Invoke();
                 }
 
-                inspectElement.Clear();
-                VisualElement field = PropertyBuilder.BuildVisualElement(Value);
-                inspectElement.Add(field);
+                //inspectElement.Clear();
+                //VisualElement field = PropertyBuilder.BuildVisualElement(Value);
+                //inspectElement.Add(field);
             });
 
-            VisualElement field = PropertyBuilder.BuildVisualElement(Value);
-            inspectElement.Add(field);
+            //VisualElement field = PropertyBuilder.BuildVisualElement(Value);
+            //inspectElement.Add(field);
 
             VisualElement root = new();
             root.Add(dropdownField);
-            root.Add(inspectElement);
+            //root.Add(inspectElement);
 
 
             Add(root);
