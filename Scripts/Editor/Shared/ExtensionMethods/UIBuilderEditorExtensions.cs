@@ -57,13 +57,18 @@ namespace Z3.UIBuilder.Editor.ExtensionMethods
         /// </summary>
         public static void RegisterChanges(this PropertyField propertyField, object target, Action callback)
         {
-            string lastJson = EditorJsonUtility.ToJson(target);
+            RegisterChanges(propertyField, () => target, callback);
+        }
+
+        public static void RegisterChanges(this PropertyField propertyField, Func<object> target, Action callback)
+        {
+            string lastJson = EditorJsonUtility.ToJson(target());
 
             propertyField.RegisterCallback<SerializedPropertyChangeEvent>(OnPropertyChanged);
 
             void OnPropertyChanged(SerializedPropertyChangeEvent evt)
             {
-                string currentJson = EditorJsonUtility.ToJson(target);
+                string currentJson = EditorJsonUtility.ToJson(target());
 
                 if (currentJson == lastJson)
                     return;
