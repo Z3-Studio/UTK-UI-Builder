@@ -8,7 +8,6 @@ using Z3.UIBuilder.Editor.ExtensionMethods;
 using System.Reflection;
 using System;
 using Unity.Properties;
-using Codice.Client.BaseCommands.BranchExplorer;
 
 namespace Z3.UIBuilder.Editor
 {
