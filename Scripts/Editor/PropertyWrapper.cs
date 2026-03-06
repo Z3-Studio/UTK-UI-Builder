@@ -10,7 +10,7 @@ namespace Z3.UIBuilder.Editor
     {
         [SerializeReference] public object property;
 
-        public static PropertyField CreateAsPropertyFieldMember(object instance, MemberInfo memberInfo) // Used for arrays like in VariableList of NodeGraph
+        public static PropertyField CreateAsPropertyField(object instance, MemberInfo memberInfo) // Used for arrays like in VariableList of NodeGraph
         {
             if (instance == null)
                 return new() { name = $"PropertyWrapper:{null}" };
