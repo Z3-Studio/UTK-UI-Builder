@@ -46,17 +46,17 @@ namespace Z3.UIBuilder.Editor
         /// <summary>
         /// Creates fields for the specified object using the provided root element and instance of object.
         /// </summary>
-        public static T CreateInstance<T>(VisualElement root, MemberInfo memberInfo = null) where T : class
+        public static T CreateInstance<T>(VisualElement root) where T : class
         {
             T targetInstance = Activator.CreateInstance<T>();
-            DrawInstance(root, targetInstance, memberInfo);
+            DrawInstance(root, targetInstance, true);
             return targetInstance;
         }
 
         /// <summary>
         /// Note: Prefer to use this approach here <see cref="EditorBuilder.GetElement"/>
         /// </summary>
-        public static VisualElement BuildVisualElement<T>(T target, MemberInfo memberInfo = null) where T : class
+        public static VisualElement BuildVisualElement<T>(T target) where T : class
         {
             if (target is UnityEngine.Object obj)  // TODO: Review it
             {
@@ -66,17 +66,17 @@ namespace Z3.UIBuilder.Editor
             }
 
             VisualElement root = new VisualElement();
-            DrawInstance(root, target, memberInfo);
+            DrawInstance(root, target, false);
             return root;
         }
 
         /// <summary>
         /// Creates fields for the specified object using the provided root element and target object.
         /// </summary>
-        public static void DrawInstance<T>(VisualElement root, T target, MemberInfo memberInfo = null) where T : class  // Review and delete?
+        public static void DrawInstance<T>(VisualElement root, T target, bool generateElements) where T : class  // Review and delete?
         {
             // TODO: if is visual element, create or try to bind
-            PropertyField propertyField = PropertyWrapper.CreateAsPropertyField(target, memberInfo);
+            PropertyField propertyField = PropertyWrapper.CreateAsPropertyField(target, generateElements);
             root.Add(propertyField);
 
             // Trustuble

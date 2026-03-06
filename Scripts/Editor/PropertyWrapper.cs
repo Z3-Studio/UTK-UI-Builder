@@ -10,37 +10,54 @@ namespace Z3.UIBuilder.Editor
     {
         [SerializeReference] public object property;
 
-        public static PropertyField CreateAsPropertyField(object instance, MemberInfo memberInfo)
+        public static PropertyField CreateAsPropertyFieldMember(object instance, MemberInfo memberInfo) // Used for arrays like in VariableList of NodeGraph
         {
             if (instance == null)
                 return new() { name = $"PropertyWrapper:{null}" };
 
+            BuildWrapper(instance, out PropertyField propertyField, out SerializedProperty serializedProperty);
+
+            EditorBuilder.ApplyAttributes(serializedProperty, propertyField, memberInfo);
+
+            return propertyField;
+        }
+
+        public static PropertyField CreateAsPropertyField(object instance, bool generateElements)
+        {
+            if (instance == null)
+                return new() { name = $"PropertyWrapper:{null}" };
+
+            BuildWrapper(instance, out PropertyField propertyField, out SerializedProperty serializedProperty);
+
+            if (generateElements) // TODO: remove this, used to create elements by constructor, like LevelDesignTools
+            {
+                EditorBuilder.GenerateElementsAndAttributes(propertyField, instance);
+
+            }
+            else
+            {
+                // BEST CASE
+                EditorBuilder.ProcessAttributes(serializedProperty, propertyField);
+            }
+
+            return propertyField;
+        }
+
+        private static void BuildWrapper(object instance, out PropertyField propertyField, out SerializedProperty serializedProperty)
+        {
             // Instantiate Wrapper
             PropertyWrapper genericProperty = CreateInstance<PropertyWrapper>();
             genericProperty.property = instance;
 
             // Create SerializedObject to get the SerializedProperty
             SerializedObject serializedObject = new SerializedObject(genericProperty);
-            SerializedProperty serializedProperty = serializedObject.FindProperty(nameof(property));
+            serializedProperty = serializedObject.FindProperty(nameof(property));
 
-            PropertyField propertyField = serializedProperty.ToPropertyField();
+            propertyField = serializedProperty.ToPropertyField();
 
             // Note: Bind(serializedObject) is also valid?
             propertyField.BindProperty(serializedObject);
             propertyField.name = $"PropertyWrapper:{instance.GetType().Name}";
-
-            //if (memberInfo != null) // TODO: Remove this way
-            //{
-            //    EditorBuilder.ApplyAttributes(serializedProperty, propertyField, memberInfo);
-            //}
-            //else
-            //{
-                EditorBuilder.ProcessAttributes(serializedProperty, propertyField);
-                // TODO: Remove GenerateElements from PropertyBuilder.cs
-                //EditorBuilder.GenerateElementsAndAttributes(propertyField, instance);
-            //}
-
-            return propertyField;
         }
 
         public static InspectorElement CreateAsInspectorElement(object instance)
