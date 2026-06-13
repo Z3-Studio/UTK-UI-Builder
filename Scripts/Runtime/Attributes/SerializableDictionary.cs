@@ -14,7 +14,7 @@ namespace Z3.UIBuilder.Core
     }
 
     [Serializable]
-    public class SerializableDictionary<TKey, TValue> : ISerializationCallbackReceiver, IDictionary<TKey, TValue>, IDictionary
+    public class SerializableDictionary<TKey, TValue> : ISerializationCallbackReceiver, IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>
     {
         [SerializeField] private List<Pair<TKey, TValue>> pairs = new List<Pair<TKey, TValue>>();
 
@@ -38,6 +38,9 @@ namespace Z3.UIBuilder.Core
         public bool IsFixedSize => ((IDictionary)dictionary).IsFixedSize;
         ICollection IDictionary.Keys => dictionary.Keys;
         ICollection IDictionary.Values => dictionary.Values;
+
+        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
+        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
 
         // ISerializationCallbackReceiver methods
         public void OnBeforeSerialize()

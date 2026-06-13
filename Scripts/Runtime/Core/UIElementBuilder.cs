@@ -96,7 +96,7 @@ namespace Z3.UIBuilder
                                 }
                                 catch (System.Exception e)
                                 {
-                                    Debug.LogError(e);
+                                    Debug.LogException(e);
                                 }
                             };
                         }

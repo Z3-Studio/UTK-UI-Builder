@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -67,7 +66,8 @@ namespace Z3.UIBuilder.Editor
             tree.Add(Experimental + "/Progress Bar", new ProgressBar() { value = 60 });
             tree.Add(Experimental + "/Pie Chart", new PieChart() { value = 60 });
             tree.Add(Experimental + "/Radial Progress", new RadialProgress() { progress = 60 });
-
+            tree.Add(Experimental + "/Drag Float Field", new DragFloatField("Drag Float Field") { value = 0.5f });
+            tree.Add(Experimental + "/Color Picker Field", new ColorPickerField() { value = new(.2f, .4f, .6f, .8f)});
 
             // TODO: Use reflection to find all classes as: https://www.foundations.unity.com/components            
         }
