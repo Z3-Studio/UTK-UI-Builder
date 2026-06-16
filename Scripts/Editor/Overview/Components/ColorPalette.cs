@@ -10,13 +10,41 @@ namespace Z3.UIBuilder.Editor
         private event Action<Color> OnColorPicked;
 
         private Color currentColor;
-        private readonly VisualElement swatchesContainer;
+        private VisualElement swatchesContainer;
 
         private const float SwatchWidth = 28f;
         private const float SwatchHeight = 18f;
 
         public ColorPalette()
         {
+            // Populate swatches
+            RegisterCallbackOnce<AttachToPanelEvent>(e => InitializeUI());
+        }
+
+        private void InitializeUI()
+        {
+            if (panel?.contextType == ContextType.Editor)
+            {
+                Label label = new("Color Palette: Not available in UI Builder Editor")
+                {
+                    style =
+                    {
+                        height = SwatchHeight,
+                        fontSize = 12,
+                        color = Color.gray,
+                        backgroundColor = Color.gray2,
+                        unityTextAlign = TextAnchor.MiddleCenter
+                    }
+                };
+
+                Add(label);
+                return;
+            }
+
+            // Main container
+            style.flexDirection = FlexDirection.Row;
+            style.alignItems = Align.FlexStart;
+
             // Add button
             Button addNewColor = new(OnAddColor)
             {
@@ -29,19 +57,14 @@ namespace Z3.UIBuilder.Editor
             addNewColor.style.SetPadding(0f);
             addNewColor.style.SetBorderWidth(1f);
             addNewColor.style.SetBorderColor(Color.black);
+            Add(addNewColor);
 
             // Swatches container
             swatchesContainer = new();
             swatchesContainer.style.flexDirection = FlexDirection.Row;
             swatchesContainer.style.flexWrap = Wrap.Wrap;
-
-            // Main container
-            style.flexDirection = FlexDirection.Row;
-            style.alignItems = Align.FlexStart;
-            Add(addNewColor);
             Add(swatchesContainer);
 
-            // Populate swatches
             RefreshSwatches();
         }
 
