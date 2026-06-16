@@ -18,6 +18,7 @@ namespace Z3.UIBuilder.Editor
         // Color picker background
         private readonly VisualElement colorPreview;
         private readonly VisualElement colorSwatch;
+        private readonly ColorPalette colorPalette;
 
         public ColorPickerField() : this("Color Picker") { }
 
@@ -81,10 +82,24 @@ namespace Z3.UIBuilder.Editor
             colorPreview.RegisterCallback<PointerDownEvent>(OnPreviewClicked);
             colorSwatch.RegisterCallback<PointerDownEvent>(OnPreviewClicked);
 
-            input.style.flexDirection = FlexDirection.Row;
+            VisualElement topRow = new()
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    flexGrow = 1
+                }
+            };
+            topRow.Add(channelsContainer);
+            topRow.Add(colorPreview);
+
+            colorPalette = new ColorPalette();
+            colorPalette.BindField(this);
+
+            input.style.flexDirection = FlexDirection.Column;
             input.style.flexGrow = 1;
-            input.Add(channelsContainer);
-            input.Add(colorPreview);
+            input.Add(topRow);
+            input.Add(colorPalette);
 
             // Register Callbacks
             redField.RegisterValueChangedCallback(evt => value = new(evt.newValue, value.g, value.b, value.a));
