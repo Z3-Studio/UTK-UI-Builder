@@ -17,6 +17,8 @@ namespace Z3.UIBuilder.Editor
             { IconType.Info, "d_console.infoicon@2x" },
             { IconType.Warning, "d_console.warnicon@2x" },
             { IconType.Error, "d_console.erroricon@2x" },
+            { IconType.PaintTool, "d_Grid.PaintTool@2x" },
+            { IconType.EyeDropper, "d_Grid.PickingTool@2x" },
             { IconType.Invisible, "d_SceneViewVisibility@2x" },
             { IconType.Visible, "d_scenevis_visible_hover@2x" },
             { IconType.Box, "d_Package Manager@2x" },

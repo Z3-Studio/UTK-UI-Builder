@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -43,17 +42,25 @@ namespace Z3.UIBuilder.Editor
                 return;
 
             Instance.colors.Insert(0, color);
+            SetAsDirty();
         }
 
         public static void RemoveColor(Color color)
         {
             Instance.colors.Remove(color);
+            SetAsDirty();
         }
 
         public static void SetAsFirstElement(Color color)
         {
             Instance.colors.Remove(color);
             Instance.colors.Insert(0, color);
+            SetAsDirty();
+        }
+
+        private static void SetAsDirty()
+        {
+            EditorUtility.SetDirty(Instance);
         }
     }
 }

@@ -23,7 +23,8 @@ namespace Z3.UIBuilder.Editor
 
         private void InitializeUI()
         {
-            if (panel?.contextType == ContextType.Editor)
+            // TODO: Fix it
+            /*if (panel?.contextType == ContextType.Editor)
             {
                 Label label = new("Color Palette: Not available in UI Builder Editor")
                 {
@@ -39,7 +40,7 @@ namespace Z3.UIBuilder.Editor
 
                 Add(label);
                 return;
-            }
+            }*/
 
             // Main container
             style.flexDirection = FlexDirection.Row;

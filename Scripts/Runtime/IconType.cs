@@ -15,6 +15,8 @@ namespace Z3.UIBuilder
         Info,
         Warning,    
         Error,
+        EyeDropper,
+        PaintTool,
         Invisible,
         Visible,
         Lamp,
