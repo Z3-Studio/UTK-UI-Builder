@@ -61,6 +61,7 @@ namespace Z3.UIBuilder.Editor
         private static void SetAsDirty()
         {
             EditorUtility.SetDirty(Instance);
+            AssetDatabase.SaveAssetIfDirty(Instance);
         }
     }
 }
