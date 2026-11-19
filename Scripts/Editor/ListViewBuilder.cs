@@ -26,6 +26,7 @@ namespace Z3.UIBuilder.Editor
         public Func<VisualElement> onMakeItem = OnMake; //  () => .Activator.CreateInstance<T>()
         public Action addEvent;
         public float fixedItemHeight = 22;
+        public bool dynamicHeight; // Items with variable height (Ex: foldout)
 
         // TODO: Option to create Copy and Paste, and include callbacks.
         // TODO: Unbind and destroy
@@ -186,6 +187,11 @@ namespace Z3.UIBuilder.Editor
             listView.itemIndexChanged += (o, n) => Rebuild(true); // Review: Bug when reording
             listView.reorderable = Config.showReordable;
             listView.fixedItemHeight = Config.fixedItemHeight;
+
+            if (Config.dynamicHeight)
+            {
+                listView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
+            }
 
             // List Style
             listView.selectionType = Config.selectable ? SelectionType.Single : SelectionType.None;

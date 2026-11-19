@@ -29,10 +29,11 @@ namespace Z3.UIBuilder.Editor
             TypeSelector typeSelector;
             if (value is IList list)
             {
-                typeSelector = new(SerializedProperty.serializedObject.targetObject, list, SerializedProperty.displayName, true);
+                typeSelector = new(SerializedProperty.serializedObject.targetObject, list, SerializedProperty.displayName, true, SerializedProperty);
 
                 int index = VisualElement.parent.IndexOf(VisualElement);
                 VisualElement.parent.Insert(index, typeSelector);
+                VisualElement.style.display = DisplayStyle.None; // The TypeSelector draws the items
             }
             else
             { 
@@ -77,11 +78,12 @@ namespace Z3.UIBuilder.Editor
             };
         }
 
-        public TypeSelector(Object target, IList list, string fieldName = null, bool saveChangesBtn = false)
+        /// <param name="listProperty"> When set, each item is a foldout with its fields </param>
+        public TypeSelector(Object target, IList list, string fieldName = null, bool saveChangesBtn = false, SerializedProperty listProperty = null)
         {
             name = fieldName;
             this.saveChangesBtn = saveChangesBtn;
-            DrawAsArray(list, fieldName);
+            DrawAsArray(list, fieldName, listProperty);
             OnChange += () =>
             {
                 EditorUtility.SetDirty(target);
@@ -99,10 +101,10 @@ namespace Z3.UIBuilder.Editor
         //    DrawAsArray(list, fieldName);
         //}
 
-        private void DrawAsArray(IList list, string fieldName = null)
+        private void DrawAsArray(IList list, string fieldName, SerializedProperty listProperty)
         {
             Type elementType = list.GetType().GenericTypeArguments[0];
-            ListViewBuilder<object, LabelView> listView = null;
+            ListViewBuilder<object, VisualElement> listView = null;
 
             Z3ListViewConfig config = Z3ListViewConfig.DefaultTemplate<LabelView>();
             config.listName = fieldName;
@@ -112,6 +114,13 @@ namespace Z3.UIBuilder.Editor
                 SelectionPopup<Type>.Open(elementType.Name, derivedTypes, AddItem, t => t.Name.ToNiceString());
             };
 
+            if (listProperty != null)
+            {
+                config.onMakeItem = () => new VisualElement();
+                config.dynamicHeight = true;
+                config.selectable = false;
+            }
+
             //VisualElement inspectElement = new() { name = "TypeSelector Inspector" }; // Foldout
             //inspectElement.style.backgroundColor = new Color(0.2f, 0.2f, 0.2f);
             //inspectElement.style.SetPadding(4);
@@ -119,6 +128,11 @@ namespace Z3.UIBuilder.Editor
             listView = new(list, config);
             //listView.OnSelectChange += DrawSelection;
             listView.OnDelete += e => OnChange?.Invoke();
+
+            if (listProperty != null)
+            {
+                listView.onBind = BindFoldoutItem;
+            }
 
             //if (list.Count > 0)
             //{
@@ -147,6 +161,54 @@ namespace Z3.UIBuilder.Editor
                 list.Add(newInstance);
                 listView.Rebuild(true);
                 OnChange?.Invoke();
+            }
+
+            void BindFoldoutItem(VisualElement view, object item, int index)
+            {
+                view.Clear();
+
+                // The list is changed directly (add, remove, reorder), the SerializedObject doesn't know it yet
+                listProperty.serializedObject.Update();
+                SerializedProperty itemProperty = listProperty.GetArrayElementAtIndex(index);
+
+                Foldout foldout = new()
+                {
+                    text = item?.GetType().Name.ToNiceString() ?? "Null",
+                    value = itemProperty.isExpanded,
+                };
+                foldout.style.flexGrow = 1;
+
+                // Keep open after rebuilding the list. Ignore nested foldouts
+                foldout.RegisterValueChangedCallback(evt =>
+                {
+                    if (evt.target == foldout)
+                    {
+                        itemProperty.isExpanded = evt.newValue;
+                    }
+                });
+
+                // Item fields
+                SerializedProperty child = itemProperty.Copy();
+                SerializedProperty end = itemProperty.GetEndProperty();
+
+                for (bool hasNext = child.NextVisible(true); hasNext && !SerializedProperty.EqualContents(child, end); hasNext = child.NextVisible(false))
+                {
+                    SerializedProperty childProperty = child.Copy();
+                    PropertyField childField = new(childProperty);
+                    childField.BindProperty(childProperty);
+                    foldout.Add(childField);
+                }
+
+                VisualElement removeContainer = new();
+                VisualElement row = new();
+                row.style.flexDirection = FlexDirection.Row;
+                row.Add(foldout);
+                row.Add(removeContainer);
+                view.Add(row);
+
+                UIBuilderResources.PropertyListElementVT.CloneTree(removeContainer);
+                removeContainer.Q<Button>("remove-button").clicked += () => listView.DeleteElement(item, index);
+                removeContainer.Q("element-name").RemoveFromHierarchy();
             }
 
             //void DrawSelection(object item)
