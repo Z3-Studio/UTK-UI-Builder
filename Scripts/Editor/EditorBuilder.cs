@@ -67,7 +67,10 @@ namespace Z3.UIBuilder.Editor
         public static void ProcessAttributes(SerializedProperty iterator, VisualElement root)
         {
             PropertyField p = root as PropertyField;
+            SerializedObject serializedObject = iterator.serializedObject;
+            HashSet<VisualElement> processedFields = new();
             EventCallback<SerializedPropertyChangeEvent> callback = null;
+            bool listeningLayout = false;
 
             callback = (SerializedPropertyChangeEvent evt) =>
             {
@@ -87,50 +90,46 @@ namespace Z3.UIBuilder.Editor
             void Iterate()
             {
                 p?.UnregisterCallback(callback);
-                Dictionary<string, VisualElement> propertyFieldByPath = new();
 
+                // After the first pass, reprocess nested fields created later (Ex: list item added or expanded)
+                if (!listeningLayout)
+                {
+                    listeningLayout = true;
+                    root.RegisterCallback<GeometryChangedEvent>(_ => Iterate());
+                }
+
+                // UI fields, the SerializedObject iteration skips collapsed children
                 foreach (VisualElement element in root.Query<VisualElement>().ToList())
                 {
                     if (element is not IBindable bindable)
                         continue;
 
-                    if (string.IsNullOrEmpty(bindable.bindingPath))
+                    string propertyPath = bindable.bindingPath;
+                    if (string.IsNullOrEmpty(propertyPath))
                         continue;
 
-                    propertyFieldByPath[bindable.bindingPath] = element;
-                }
+                    if (propertyPath.EndsWith("]")) // Ignore List element
+                        continue;
 
-                if (iterator.NextVisible(true))
-                {
-                    do
-                    {
-                        string propertyPath = iterator.propertyPath;
+                    VisualElement finalElement = GetBindable<PropertyField>(element, propertyPath)
+                        ?? element;
 
-                        if (!propertyFieldByPath.TryGetValue(propertyPath, out VisualElement fieldElement))
-                            continue;
+                    // Ignore elements already processed
+                    bool added = processedFields.Add(finalElement);
+                    if (!added)
+                        continue;
 
-                        PropertyResolver resolver = new(iterator);
-                        resolver.GetMemberInfoWithParent(out MemberInfo memberInfo, out object parent);
+                    SerializedProperty property = serializedObject.FindProperty(propertyPath);
+                    if (property == null)
+                        continue;
 
-                        if (memberInfo == null)
-                            continue;
+                    PropertyResolver resolver = new(property);
+                    resolver.GetMemberInfoWithParent(out MemberInfo memberInfo, out object parent);
 
-                        VisualElement finalElement = GetBindable<PropertyField>(fieldElement, propertyPath)
-                            ?? fieldElement;
+                    if (memberInfo == null)
+                        continue;
 
-                        // Force reprocess drawer?
-                        //if (finalElement is PropertyField p)
-                        //{
-                        //    ExtensionMethods.UIBuilderEditorExtensions.RegisterChanges(p, iterator.serializedObject.targetObject, () =>
-                        //    {
-                        //        ProcessAttributes(iterator, root);
-                        //    });
-                        //}
-
-                        ApplyAttributes(iterator, finalElement, memberInfo);
-                        propertyFieldByPath.Remove(propertyPath);
-                    }
-                    while (iterator.NextVisible(true));
+                    ApplyAttributes(property, finalElement, memberInfo);
                 }
             }
         }
